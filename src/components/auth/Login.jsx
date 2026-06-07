@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { auth } from '../../firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+// Notice there is now only ONE import from 'firebase/auth'
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
