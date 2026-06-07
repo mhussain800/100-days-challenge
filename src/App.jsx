@@ -29,20 +29,32 @@ export default function App() {
   
   const saveTimeoutRef = useRef(null);
 
-  // 1. Listen for User Login / Logout
+  /// 1. Listen for User Login / Logout
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      
       if (currentUser) {
+        // FIX: Turn the loading screen back on while we fetch the name!
+        setAuthLoading(true); 
+        setUser(currentUser);
+        
         // Fetch the user's name from Firestore
         const profileRef = doc(db, 'users', currentUser.uid);
         const profileSnap = await getDoc(profileRef);
+        
         if (profileSnap.exists() && profileSnap.data().name) {
           setUserName(profileSnap.data().name);
+        } else {
+          setUserName(null); // Ensure it's clear if they actually need to set a name
         }
+        
+        // Name is successfully fetched, turn off the loading screen
+        setAuthLoading(false);
+      } else {
+        // User logged out
+        setUser(null);
+        setUserName(null);
+        setAuthLoading(false);
       }
-      setAuthLoading(false);
     });
 
     return () => unsubscribe();
