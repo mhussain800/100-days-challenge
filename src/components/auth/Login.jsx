@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { auth } from '../../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence
+} from 'firebase/auth';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,6 +22,8 @@ export default function Login() {
     setLoading(true);
 
     try {
+      await setPersistence(auth, browserLocalPersistence);
+      
       if (isRegistering) {
         await createUserWithEmailAndPassword(auth, email, password);
       } else {
