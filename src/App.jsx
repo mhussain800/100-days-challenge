@@ -22,27 +22,44 @@ export default function App() {
   
   const [logs, setLogs] = useState({});
   const [currentDate, setCurrentDate] = useState(getToday());
-  const [view, setView] = useState('tracker'); 
   const [startDate, setStartDate] = useState(getToday()); 
   const [saveStatus, setSaveStatus] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
+  const [view, setView] = useState('tracker'); 
   
   const saveTimeoutRef = useRef(null);
 
-  // 1. Listen for User Login / Logout
+  // 1. Listen for User Login / Logout (FIXED with try/catch safety net)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      
       if (currentUser) {
-        // Fetch the user's name from Firestore
-        const profileRef = doc(db, 'users', currentUser.uid);
-        const profileSnap = await getDoc(profileRef);
-        if (profileSnap.exists() && profileSnap.data().name) {
-          setUserName(profileSnap.data().name);
+        setAuthLoading(true); 
+        setUser(currentUser);
+        
+        try {
+          // Attempt to fetch the user's name from Firestore
+          const profileRef = doc(db, 'users', currentUser.uid);
+          const profileSnap = await getDoc(profileRef);
+          
+          if (profileSnap.exists() && profileSnap.data().name) {
+            setUserName(profileSnap.data().name);
+          } else {
+            setUserName(null);
+          }
+        } catch (error) {
+          console.error("Firebase fetch error:", error);
+          setUserName(null); // If it fails, fallback gracefully
+        } finally {
+          // THIS RUNS NO MATTER WHAT. The loading screen will never get stuck again.
+          setAuthLoading(false);
         }
+        
+      } else {
+        // User logged out
+        setUser(null);
+        setUserName(null);
+        setAuthLoading(false);
       }
-      setAuthLoading(false);
     });
 
     return () => unsubscribe();
@@ -153,7 +170,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Content Area (pb-32 ensures content clears the floating nav) */}
+      {/* Main Content Area */}
       <main className="flex-1 p-4 pb-32 w-full max-w-[1600px] mx-auto">
         {view === 'tracker' 
           ? <TrackerView tasks={TASKS} logs={logs} currentDate={currentDate} updateTask={updateTask} />
@@ -161,22 +178,22 @@ export default function App() {
         }
       </main>
 
-      {/* --- NEW FLOATING BOTTOM NAVIGATION BAR --- */}
-      <nav className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-md bg-[#fdfbf7]/90 backdrop-blur-lg border border-[#e5e0d3] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex justify-around z-50 p-1.5">
+      {/* --- SLIM FLOATING BOTTOM NAVIGATION BAR --- */}
+      <nav className="fixed bottom-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-md bg-[#fdfbf7]/90 backdrop-blur-lg border border-[#e5e0d3] rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex justify-around z-50 p-1">
         <button 
           onClick={() => setView('tracker')}
-          className={`flex-1 py-2.5 flex flex-col items-center gap-1 transition rounded-xl ${view === 'tracker' ? 'text-[#2c2b2a] bg-[#ebe7db] shadow-sm border border-[#e5e0d3]/50' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 py-1.5 flex flex-col items-center gap-0.5 transition rounded-full ${view === 'tracker' ? 'text-[#2c2b2a] bg-[#ebe7db] shadow-sm border border-[#e5e0d3]/50' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          <Check size={18} />
-          <span className="text-[10px] uppercase tracking-widest font-mono">Tracker</span>
+          <Check size={16} />
+          <span className="text-[9px] uppercase tracking-widest font-mono">Tracker</span>
         </button>
         
         <button 
           onClick={() => setView('dashboard')}
-          className={`flex-1 py-2.5 flex flex-col items-center gap-1 transition rounded-xl ${view === 'dashboard' ? 'text-[#2c2b2a] bg-[#ebe7db] shadow-sm border border-[#e5e0d3]/50' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 py-1.5 flex flex-col items-center gap-0.5 transition rounded-full ${view === 'dashboard' ? 'text-[#2c2b2a] bg-[#ebe7db] shadow-sm border border-[#e5e0d3]/50' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          <Activity size={18} />
-          <span className="text-[10px] uppercase tracking-widest font-mono">Dashboard</span>
+          <Activity size={16} />
+          <span className="text-[9px] uppercase tracking-widest font-mono">Dashboard</span>
         </button>
       </nav>
 
