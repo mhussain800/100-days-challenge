@@ -119,7 +119,8 @@ export default function App() {
   const currentDayNumber = Math.floor((new Date(currentDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
 
   return (
-    <div className="min-h-screen bg-[#fdfbf7] text-[#2c2b2a] font-serif selection:bg-[#d4cfc1] overflow-x-hidden flex flex-col">
+    <div className="min-h-screen bg-[#fdfbf7] text-[#2c2b2a] font-serif selection:bg-[#d4cfc1] overflow-x-hidden flex flex-col relative">
+      
       <header className="px-2 md:px-4 py-2 border-b border-[#e5e0d3] flex items-center justify-between sticky top-0 bg-[#fdfbf7]/95 backdrop-blur z-10 shadow-sm">
         <div className="flex items-baseline gap-2 md:gap-4 shrink-0">
           <h1 className="text-2xl md:text-3xl font-bold italic tracking-tight">Day {currentDayNumber < 1 ? 1 : currentDayNumber}/100</h1>
@@ -145,10 +146,6 @@ export default function App() {
               }} className="p-1 hover:bg-[#e5e0d3] rounded-full transition"><ChevronRight size={16} /></button>
             </div>
           )}
-
-          <button onClick={() => setView(v => v === 'tracker' ? 'dashboard' : 'tracker')} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 bg-[#2c2b2a] text-[#fdfbf7] rounded text-xs md:text-sm tracking-wide font-mono hover:bg-[#1a1918] transition whitespace-nowrap">
-            {view === 'tracker' ? <><Activity size={14}/> <span className="hidden sm:inline">Dashboard</span></> : <><Check size={14}/> <span className="hidden sm:inline">Tracker</span></>}
-          </button>
           
           <button onClick={handleLogout} className="p-1.5 hover:bg-[#e5e0d3] rounded transition text-gray-500 hover:text-red-600" title="Sign Out">
             <LogOut size={16} />
@@ -156,12 +153,33 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 p-4 w-full max-w-[1600px] mx-auto">
+      {/* Main Content Area (pb-32 ensures content clears the floating nav) */}
+      <main className="flex-1 p-4 pb-32 w-full max-w-[1600px] mx-auto">
         {view === 'tracker' 
           ? <TrackerView tasks={TASKS} logs={logs} currentDate={currentDate} updateTask={updateTask} />
           : <DashboardView tasks={TASKS} logs={logs} startDate={startDate} userName={userName} />
         }
       </main>
+
+      {/* --- NEW FLOATING BOTTOM NAVIGATION BAR --- */}
+      <nav className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-md bg-[#fdfbf7]/90 backdrop-blur-lg border border-[#e5e0d3] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex justify-around z-50 p-1.5">
+        <button 
+          onClick={() => setView('tracker')}
+          className={`flex-1 py-2.5 flex flex-col items-center gap-1 transition rounded-xl ${view === 'tracker' ? 'text-[#2c2b2a] bg-[#ebe7db] shadow-sm border border-[#e5e0d3]/50' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Check size={18} />
+          <span className="text-[10px] uppercase tracking-widest font-mono">Tracker</span>
+        </button>
+        
+        <button 
+          onClick={() => setView('dashboard')}
+          className={`flex-1 py-2.5 flex flex-col items-center gap-1 transition rounded-xl ${view === 'dashboard' ? 'text-[#2c2b2a] bg-[#ebe7db] shadow-sm border border-[#e5e0d3]/50' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Activity size={18} />
+          <span className="text-[10px] uppercase tracking-widest font-mono">Dashboard</span>
+        </button>
+      </nav>
+
     </div>
   );
 }

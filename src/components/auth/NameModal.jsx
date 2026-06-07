@@ -21,7 +21,7 @@ export default function NameModal({ onSave }) {
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name..."
             className="w-full border-b-2 border-gray-300 py-2 bg-transparent focus:border-gray-800 outline-none transition font-mono text-lg"
-            autoFocus
+
             required
           />
           <button 

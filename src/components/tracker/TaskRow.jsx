@@ -20,15 +20,15 @@ export default function TaskRow({ task, value, onChange }) {
                   </select>
                 )}
                 {(task.type === 'bool_num' || task.type === 'bool_text') && (
-                  <input type={task.type === 'bool_num' ? 'number' : 'text'} value={value.val || ''} onChange={(e) => onChange('val', e.target.value)} placeholder={task.placeholder || '...'} className="w-full min-w-[50px] font-mono text-xs border-b border-gray-300 focus:border-gray-800 transition px-1 text-right" autoFocus />
+                  <input type={task.type === 'bool_num' ? 'number' : 'text'} value={value.val || ''} onChange={(e) => onChange('val', e.target.value)} placeholder={task.placeholder || '...'} className="w-full min-w-[50px] font-mono text-xs border-b border-gray-300 focus:border-gray-800 transition px-1 text-right" />
                 )}
                 {task.type === 'bool_time' && (
-                  <input type="time" value={value.val || ''} onChange={(e) => onChange('val', e.target.value)} className="w-[85px] font-mono text-xs border-b border-gray-300 focus:border-gray-800 transition px-1" autoFocus />
+                  <input type="time" value={value.val || ''} onChange={(e) => onChange('val', e.target.value)} className="w-[85px] font-mono text-xs border-b border-gray-300 focus:border-gray-800 transition px-1" />
                 )}
                 {task.type === 'bool_time_slept' && (
                   <div className="flex items-center gap-1 w-full justify-end">
                     <span className="text-[10px] text-gray-400 font-mono">Slept:</span>
-                    <input type="time" value={value.val || ''} onChange={(e) => onChange('val', e.target.value)} className="font-mono text-xs w-[85px] border-b border-gray-300 focus:border-gray-800 transition" autoFocus />
+                    <input type="time" value={value.val || ''} onChange={(e) => onChange('val', e.target.value)} className="font-mono text-xs w-[85px] border-b border-gray-300 focus:border-gray-800 transition" />
                   </div>
                 )}
               </>
