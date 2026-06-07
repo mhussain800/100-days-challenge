@@ -1,0 +1,46 @@
+/* 1. Import your tactile fonts */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* 2. Load Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 3. Apply custom theme rules */
+@layer base {
+  .font-serif { 
+    font-family: 'Instrument Serif', Georgia, serif; 
+  }
+  
+  .font-mono { 
+    font-family: 'JetBrains Mono', monospace; 
+    font-size: 0.85em; /* Keeps the mono font from overpowering the serif */
+  }
+
+  /* Reset inputs for the paper-ledger look */
+  input, select { 
+    background: transparent; 
+    outline: none; 
+  }
+
+  /* Make the tiny clock icon in time inputs slightly faded */
+  input[type="time"]::-webkit-calendar-picker-indicator { 
+    filter: opacity(0.5); 
+    cursor: pointer; 
+  }
+
+  /* Ultra-compact scrollbar for dense data views */
+  ::-webkit-scrollbar { 
+    width: 6px; 
+    height: 6px; 
+  }
+  
+  ::-webkit-scrollbar-thumb { 
+    background: #d4cfc1; 
+    border-radius: 3px; 
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
