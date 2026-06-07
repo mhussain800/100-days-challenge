@@ -30,8 +30,8 @@ export const TASKS = [
   { id: 'plan', label: 'Plan the next day', category: 'Discipline', type: 'bool_text' },
   { id: 'waste', label: 'Don\'t waste time', category: 'Discipline', type: 'bool_text' },
   // Character / Vices
-  { id: 'no_m', label: 'Masturbation', category: 'Character', type: 'bool' },
-  { id: 'no_p', label: 'Porn', category: 'Character', type: 'bool' },
+  { id: 'no_m', label: 'No Masturbation', category: 'Character', type: 'bool' },
+  { id: 'no_p', label: 'No Porn', category: 'Character', type: 'bool' },
   { id: 'junk', label: 'Junk Food', category: 'Character', type: 'bool_text', placeholder: 'what?' },
   { id: 'cold_drink', label: 'Cold Drink', category: 'Character', type: 'bool' },
   { id: 'social', label: 'Social Media', category: 'Character', type: 'bool_num', placeholder: 'hrs' },
