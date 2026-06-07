@@ -13,7 +13,7 @@ export const TASKS = [
   // Sleep / Morning
   { id: 'wake', label: 'Wake up early [4:30 am]', category: 'Routine', type: 'bool_time_slept' },
   { id: 'sleep', label: 'Sleep Early [10 pm]', category: 'Routine', type: 'bool_time_slept' },
-  { id: 'sleep_hrs', label: 'Sleep', category: 'Routine', type: 'bool_num', placeholder: 'hrs' },
+  { id: 'sleep_hrs', label: 'Sleep Duration', category: 'Routine', type: 'bool_num', placeholder: 'hrs' },
   { id: 'bed', label: 'Make Bed', category: 'Routine', type: 'bool' },
   // Fitness / Health
   { id: 'walk', label: 'Walk/Running', category: 'Health', type: 'bool_num', placeholder: 'mins' },
@@ -32,8 +32,8 @@ export const TASKS = [
   // Character / Vices
   { id: 'no_m', label: 'No Masturbation', category: 'Character', type: 'bool' },
   { id: 'no_p', label: 'No Porn', category: 'Character', type: 'bool' },
-  { id: 'junk', label: 'Junk Food', category: 'Character', type: 'bool_text', placeholder: 'what?' },
-  { id: 'cold_drink', label: 'Cold Drink', category: 'Character', type: 'bool' },
+  { id: 'junk', label: 'No Junk Food', category: 'Character', type: 'bool_text', placeholder: 'what?' },
+  { id: 'cold_drink', label: 'No Cold Drink', category: 'Character', type: 'bool' },
   { id: 'social', label: 'Social Media', category: 'Character', type: 'bool_num', placeholder: 'hrs' },
   // Social / Other
   { id: 'parents', label: 'Serve Parents', category: 'Social', type: 'bool_text' },
