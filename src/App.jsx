@@ -120,23 +120,25 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#2c2b2a] font-serif selection:bg-[#d4cfc1] overflow-x-hidden flex flex-col">
-      <header className="px-4 py-2 border-b border-[#e5e0d3] flex items-center justify-between sticky top-0 bg-[#fdfbf7]/95 backdrop-blur z-10 shadow-sm">
-        <div className="flex items-baseline gap-4">
-          <h1 className="text-3xl font-bold italic tracking-tight">Day {currentDayNumber < 1 ? 1 : currentDayNumber}/100</h1>
-          <span className="text-sm text-gray-500 font-mono tracking-widest uppercase hidden md:inline">
+      <header className="px-2 md:px-4 py-2 border-b border-[#e5e0d3] flex items-center justify-between sticky top-0 bg-[#fdfbf7]/95 backdrop-blur z-10 shadow-sm">
+        <div className="flex items-baseline gap-2 md:gap-4 shrink-0">
+          <h1 className="text-2xl md:text-3xl font-bold italic tracking-tight">Day {currentDayNumber < 1 ? 1 : currentDayNumber}/100</h1>
+          <span className="text-sm text-gray-500 font-mono tracking-widest uppercase hidden lg:inline">
             Welcome, {userName}
           </span>
-          <span className="text-sm text-gray-400 font-mono tracking-widest uppercase">{saveStatus}</span>
+          <span className="text-xs text-gray-400 font-mono tracking-widest uppercase hidden md:inline">{saveStatus}</span>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 shrink-0">
           {view === 'tracker' && (
-            <div className="flex items-center gap-2 bg-[#f2efe6] rounded-full px-2 py-1 border border-[#e5e0d3]">
+            <div className="flex items-center gap-1 md:gap-2 bg-[#f2efe6] rounded-full px-1 md:px-2 py-1 border border-[#e5e0d3]">
               <button onClick={() => {
                 const d = new Date(currentDate); d.setDate(d.getDate() - 1);
                 setCurrentDate(d.toISOString().split('T')[0]);
               }} className="p-1 hover:bg-[#e5e0d3] rounded-full transition"><ChevronLeft size={16} /></button>
-              <input type="date" value={currentDate} onChange={(e) => setCurrentDate(e.target.value)} className="font-mono text-sm bg-transparent border-none outline-none text-center" />
+              
+              <input type="date" value={currentDate} onChange={(e) => setCurrentDate(e.target.value)} className="font-mono text-xs md:text-sm bg-transparent border-none outline-none text-center w-[110px] md:w-auto" />
+              
               <button onClick={() => {
                 const d = new Date(currentDate); d.setDate(d.getDate() + 1);
                 setCurrentDate(d.toISOString().split('T')[0]);
@@ -144,11 +146,11 @@ export default function App() {
             </div>
           )}
 
-          <button onClick={() => setView(v => v === 'tracker' ? 'dashboard' : 'tracker')} className="flex items-center gap-2 px-3 py-1.5 bg-[#2c2b2a] text-[#fdfbf7] rounded text-sm tracking-wide font-mono hover:bg-[#1a1918] transition">
-            {view === 'tracker' ? <><Activity size={14}/> Dashboard</> : <><Check size={14}/> Tracker</>}
+          <button onClick={() => setView(v => v === 'tracker' ? 'dashboard' : 'tracker')} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 bg-[#2c2b2a] text-[#fdfbf7] rounded text-xs md:text-sm tracking-wide font-mono hover:bg-[#1a1918] transition whitespace-nowrap">
+            {view === 'tracker' ? <><Activity size={14}/> <span className="hidden sm:inline">Dashboard</span></> : <><Check size={14}/> <span className="hidden sm:inline">Tracker</span></>}
           </button>
           
-          <button onClick={handleLogout} className="p-2 hover:bg-[#e5e0d3] rounded transition text-gray-500 hover:text-red-600" title="Sign Out">
+          <button onClick={handleLogout} className="p-1.5 hover:bg-[#e5e0d3] rounded transition text-gray-500 hover:text-red-600" title="Sign Out">
             <LogOut size={16} />
           </button>
         </div>
