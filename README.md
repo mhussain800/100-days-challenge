@@ -1,4 +1,6 @@
 # 100 Days Challenge Ledger 📜
+<img width="3736" height="1120" alt="Gemini_Generated_Image_xa2jqzxa2jqzxa2j" src="https://github.com/user-attachments/assets/29f3d3d5-9981-49f1-86ff-60ce1a21f932" />
+
 
 A sophisticated, minimalist habit and spiritual tracking application designed with a high-end, tactile vintage paper ledger aesthetic. Built for modern performance with a focused, academic feel.
 
