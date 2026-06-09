@@ -10,7 +10,8 @@ export default function SalahGraph({ logs, days100, today }) {
       if (day <= today && logs[day]) {
         PRAYER_IDS.forEach(id => {
           const task = logs[day][id];
-          if (task && task.checked && task.val !== 'Qaza') count++;
+          // FIX: Now it just checks if the box is checked! Qaza is officially counted.
+          if (task && task.checked) count++;
         });
       }
       return { name: `Day ${index + 1}`, count: day <= today ? count : null };
