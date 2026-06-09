@@ -11,7 +11,7 @@ export const TASKS = [
   { id: 'tafseer', label: 'Tafseer', category: 'Spiritual', type: 'bool_text', placeholder: 'details...' },
   { id: 'dhikr', label: 'Dhikr', category: 'Spiritual', type: 'bool' },
   // Sleep / Morning
-  { id: 'wake', label: 'Wake up early [4:30 am]', category: 'Routine', type: 'bool_time_wokeup' },
+  { id: 'wake', label: 'Wake up early [4:30 am]', category: 'Routine', type: 'input', inputLabel: 'Woke up:', placeholder: 'Woke up:' },
   { id: 'sleep', label: 'Sleep Early [10 pm]', category: 'Routine', type: 'bool_time_slept' },
   { id: 'sleep_hrs', label: 'Sleep Durtion', category: 'Routine', type: 'bool_num', placeholder: 'hrs' },
   { id: 'bed', label: 'Make Bed', category: 'Routine', type: 'bool' },
