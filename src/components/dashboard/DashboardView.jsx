@@ -10,7 +10,8 @@ export default function DashboardView({ tasks, logs, startDate, userName }) {
     if (!dataObj) return false;
     switch(task.type) {
       case 'bool': return !!dataObj.checked;
-      case 'bool_select': return !!dataObj.checked && (dataObj.val || task.options[0]) !== 'Qaza';
+      // FIX: Now, if the box is checked, it counts as completed, even if it's Qaza!
+      case 'bool_select': return !!dataObj.checked; 
       default: return !!dataObj.checked;
     }
   };

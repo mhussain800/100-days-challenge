@@ -50,7 +50,16 @@ export default function Login() {
       }
 
     } catch (err) {
-      setError(err.message.replace('Firebase: ', ''));
+      // Intercept the ugly Firebase errors and make them human-readable
+      if (err.code === 'auth/invalid-credential') {
+        setError('Invalid email or password. If you do not have an account, please click "Create Account" below.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists. Please sign in instead.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Your password is too weak. Please use at least 6 characters.');
+      } else {
+        setError(err.message.replace('Firebase: ', ''));
+      }
     } finally {
       setLoading(false);
     }
