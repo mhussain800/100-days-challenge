@@ -11,7 +11,7 @@ export const TASKS = [
   { id: 'tafseer', label: 'Tafseer', category: 'Spiritual', type: 'bool_text', placeholder: 'details...' },
   { id: 'dhikr', label: 'Dhikr', category: 'Spiritual', type: 'bool' },
   // Sleep / Morning
-  { id: 'wake', label: 'Wake up early [4:30 am]', category: 'Routine', type: 'bool_time_slept' },
+  { id: 'wake', label: 'Wake up early [4:30 am]', category: 'Routine', type: 'bool_time_woke up' },
   { id: 'sleep', label: 'Sleep Early [10 pm]', category: 'Routine', type: 'bool_time_slept' },
   { id: 'sleep_hrs', label: 'Sleep Durtion', category: 'Routine', type: 'bool_num', placeholder: 'hrs' },
   { id: 'bed', label: 'Make Bed', category: 'Routine', type: 'bool' },
@@ -30,8 +30,11 @@ export const TASKS = [
   { id: 'plan', label: 'Plan the next day', category: 'Discipline', type: 'bool_text' },
   { id: 'waste', label: 'Don\'t waste time', category: 'Discipline', type: 'bool_text' },
   // Character / Vices
+  { id: 'no_s', label: 'No Smoking', category: 'Character', type: 'bool' },
   { id: 'no_m', label: 'No Masturbation', category: 'Character', type: 'bool' },
   { id: 'no_p', label: 'No Porn', category: 'Character', type: 'bool' },
+  { id: 'gaze', label: 'Gaze Control', category: 'Character', type: 'bool' },
+  { id: 'tongue', label: 'Tongue Control', category: 'Character', type: 'bool' },
   { id: 'junk', label: 'No Junk Food', category: 'Character', type: 'bool_text', placeholder: 'what?' },
   { id: 'cold_drink', label: 'No Cold Drink', category: 'Character', type: 'bool' },
   { id: 'social', label: 'Social Media', category: 'Character', type: 'bool_num', placeholder: 'hrs' },
