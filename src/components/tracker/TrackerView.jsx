@@ -1,5 +1,6 @@
 import React from 'react';
 import TaskRow from './TaskRow';
+import TodoList from './TodoList';
 
 export default function TrackerView({ tasks, logs, currentDate, updateTask }) {
   const currentLog = logs[currentDate] || {};
@@ -20,6 +21,8 @@ export default function TrackerView({ tasks, logs, currentDate, updateTask }) {
           </div>
         </div>
       ))}
+      {/* Drop this right below your mapped categories/tasks! */}
+      <TodoList date={date} logs={logs} updateLog={updateLog} />
     </div>
   );
 }

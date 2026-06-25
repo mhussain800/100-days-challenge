@@ -29,6 +29,7 @@ export const TASKS = [
   { id: 'college', label: 'College on Time', category: 'Discipline', type: 'bool_time' },
   { id: 'plan', label: 'Plan the next day', category: 'Discipline', type: 'bool_text' },
   { id: 'waste', label: 'Don\'t waste time', category: 'Discipline', type: 'bool_text' },
+  { id: 'urdu_task', label: 'آج کا کام کل پر مت چھوڑو (Do not delay today\'s work)', category: 'Discipline', type: 'bool' },
   // Character / Vices
   { id: 'junk', label: 'No Junk Food', category: 'Character', type: 'bool_text', placeholder: 'what?' },
   { id: 'cold_drink', label: 'No Cold Drink', category: 'Character', type: 'bool' },
@@ -37,9 +38,14 @@ export const TASKS = [
   { id: 'no_p', label: 'No Porn', category: 'Character', type: 'bool' },
   { id: 'gaze', label: 'Gaze Control', category: 'Character', type: 'bool' },
   { id: 'tongue', label: 'Tongue Control', category: 'Character', type: 'bool' },
-  { id: 'social', label: 'Social Media', category: 'Character', type: 'bool_num', placeholder: 'hrs' },
   // Social / Other
   { id: 'parents', label: 'Serve Parents', category: 'Social', type: 'bool_text' },
   { id: 'charity', label: 'Charity', category: 'Social', type: 'bool_num', placeholder: 'amount' },
-  { id: 'expense', label: 'Record Total Expense', category: 'Social', type: 'bool_num', placeholder: 'PKR' }
+  { id: 'expense', label: 'Record Total Expense', category: 'Social', type: 'bool_num', placeholder: 'PKR' },
+  // Screen Time & Habits
+  { id: 'media_songs', label: 'Songs', category: 'Screen Time', type: 'bool_select', options: ['accidentally', 'purposefully'] },
+  { id: 'media_movies', label: 'Movies/Seasons/Animes', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully', 'bored'] },
+  { id: 'media_yt', label: 'YouTube', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
+  { id: 'media_insta', label: 'Instagram', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
+  { id: 'media_fb', label: 'Facebook', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
 ];
