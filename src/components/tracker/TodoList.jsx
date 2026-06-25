@@ -1,8 +1,8 @@
 import React from 'react';
 
 export default function TodoList({ date, logs, updateLog }) {
-  // If there are no saved todos for today, default to 3 empty ones
-  const savedTodos = logs[date]?.todos || [
+  // FIX: Added '.list' to align with how updateTask stores nested data
+  const savedTodos = logs[date]?.todos?.list || [
     { id: 1, text: '', checked: false },
     { id: 2, text: '', checked: false },
     { id: 3, text: '', checked: false }
