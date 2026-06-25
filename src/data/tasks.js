@@ -29,7 +29,7 @@ export const TASKS = [
   { id: 'college', label: 'College on Time', category: 'Discipline', type: 'bool_time' },
   { id: 'plan', label: 'Plan the next day', category: 'Discipline', type: 'bool_text' },
   { id: 'waste', label: 'Don\'t waste time', category: 'Discipline', type: 'bool_text' },
-  { id: 'urdu_task', label: 'آج کا کام کل پر مت چھوڑو (Do not delay today\'s work)', category: 'Discipline', type: 'bool' },
+  { id: 'urdu_task', label: 'آج کا کام کل پر مت چھوڑو (No Procrastination)', category: 'Discipline', type: 'bool' },
   // Character / Vices
   { id: 'junk', label: 'No Junk Food', category: 'Character', type: 'bool_text', placeholder: 'what?' },
   { id: 'cold_drink', label: 'No Cold Drink', category: 'Character', type: 'bool' },
