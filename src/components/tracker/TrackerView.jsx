@@ -21,8 +21,13 @@ export default function TrackerView({ tasks, logs, currentDate, updateTask }) {
           </div>
         </div>
       ))}
-      {/* Drop this right below your mapped categories/tasks! */}
-      <TodoList date={date} logs={logs} updateLog={updateLog} />
+      
+      {/* FIX: Mapped updateLog to use your existing updateTask function */}
+      <TodoList 
+        date={currentDate} 
+        logs={logs} 
+        updateLog={(_, __, newTodos) => updateTask('todos', 'list', newTodos)} 
+      />
     </div>
   );
 }
