@@ -43,9 +43,9 @@ export const TASKS = [
   { id: 'charity', label: 'Charity', category: 'Social', type: 'bool_num', placeholder: 'amount' },
   { id: 'expense', label: 'Record Total Expense', category: 'Social', type: 'bool_num', placeholder: 'PKR' },
   // Screen Time & Habits
-  { id: 'media_songs', label: 'Songs', category: 'Screen Time', type: 'bool_select', options: ['accidentally', 'purposefully'] },
-  { id: 'media_movies', label: 'Movies/Seasons/Animes', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully', 'bored'] },
-  { id: 'media_yt', label: 'YouTube', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
-  { id: 'media_insta', label: 'Instagram', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
-  { id: 'media_fb', label: 'Facebook', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
+  { id: 'media_songs', label: 'No Songs', category: 'Screen Time', type: 'bool_select', options: ['accidentally', 'purposefully'] },
+  { id: 'media_movies', label: 'No Movies/Seasons/Animes', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully', 'bored'] },
+  { id: 'media_yt', label: 'No YouTube', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
+  { id: 'media_insta', label: 'No Instagram', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
+  { id: 'media_fb', label: 'No Facebook', category: 'Screen Time', type: 'bool_select', options: ['doomscroll', 'purposefully'] },
 ];
