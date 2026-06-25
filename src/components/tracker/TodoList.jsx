@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default function TodoList({ date, logs, updateLog }) {
-  // FIX: Added '.list' to align with how updateTask stores nested data
   const savedTodos = logs[date]?.todos?.list || [
     { id: 1, text: '', checked: false },
     { id: 2, text: '', checked: false },
@@ -32,19 +31,25 @@ export default function TodoList({ date, logs, updateLog }) {
       
       <div className="space-y-3">
         {savedTodos.map((todo) => (
-          <div key={todo.id} className="flex items-center gap-3">
+          // Changed to items-start and added mt-2 to keep checkbox aligned with top line of text
+          <div key={todo.id} className="flex items-start gap-3">
             <input
               type="checkbox"
               checked={todo.checked}
               onChange={() => toggleCheck(todo.id)}
-              className="w-6 h-6 accent-[#2c2b2a] rounded cursor-pointer shrink-0"
+              className="mt-2 w-6 h-6 accent-[#2c2b2a] rounded cursor-pointer shrink-0"
             />
-            <input
-              type="text"
+            {/* Swapped input for an auto-expanding textarea */}
+            <textarea
               value={todo.text}
               onChange={(e) => updateText(todo.id, e.target.value)}
+              onInput={(e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+              }}
               placeholder="Task..."
-              className={`flex-1 bg-transparent border-b border-dashed border-[#e5e0d3] focus:border-[#2c2b2a] outline-none text-[#2c2b2a] text-lg px-1 py-1 transition-all ${
+              rows={1}
+              className={`flex-1 bg-transparent border-b border-dashed border-[#e5e0d3] focus:border-[#2c2b2a] outline-none text-[#2c2b2a] text-lg px-1 py-1 transition-all resize-none overflow-hidden min-h-[36px] ${
                 todo.checked ? 'line-through opacity-40 italic' : ''
               }`}
             />

@@ -3,7 +3,8 @@ import React from 'react';
 export default function TaskRow({ task, value, onChange }) {
   return (
     <div className="flex items-center justify-between px-3 py-2 hover:bg-[#faf9f5] group transition-colors min-h-[40px]">
-      <span className="text-[17px] leading-tight truncate pr-2 w-1/2" title={task.label}>
+      {/* FIX: Removed 'truncate' and added 'break-words whitespace-normal' */}
+      <span className="text-[17px] leading-tight break-words whitespace-normal pr-2 w-1/2" title={task.label}>
         {task.label}
       </span>
       <div className="flex items-center gap-2 justify-end w-1/2">
