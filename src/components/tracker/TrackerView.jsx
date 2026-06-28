@@ -1,6 +1,7 @@
 import React from 'react';
 import TaskRow from './TaskRow';
 import TodoList from './TodoList';
+import TimeBlocker from './TimeBlocker';
 
 export default function TrackerView({ tasks, logs, currentDate, updateTask }) {
   const currentLog = logs[currentDate] || {};
@@ -22,6 +23,7 @@ export default function TrackerView({ tasks, logs, currentDate, updateTask }) {
         </div>
       ))}
       
+      <TimeBlocker date={currentDate} logs={logs} updateLog={(date, field, val) => updateTask(field, 'list', val)} />
       {/* FIX: Mapped updateLog to use your existing updateTask function */}
       <TodoList 
         date={currentDate} 

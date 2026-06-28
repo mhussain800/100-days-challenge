@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import SalahGraph from './SalahGraph';
 import { getDaysArray, getToday } from '../../utils/helpers';
+import TimeGraph from './TimeGraph';
+import WeeklyGraph from './WeeklyGraph';
 
 export default function DashboardView({ tasks, logs, startDate, userName }) {
   const days100 = useMemo(() => getDaysArray(startDate, 100), [startDate]);
@@ -36,6 +38,8 @@ export default function DashboardView({ tasks, logs, startDate, userName }) {
         </div>
       </div>
       <SalahGraph logs={logs} days100={days100} today={today} />
+      <TimeGraph logs={logs} />
+      <WeeklyGraph logs={logs} today={today} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {tasks.map(task => {
           const streak = getStreak(task);
