@@ -1,24 +1,27 @@
 import React from 'react';
 
+// Syncing the exact same categories from TimeBlocker
 const TIME_CATEGORIES = [
   { id: 'sleep', label: 'Sleep', color: '#7c7287' },
-  { id: 'worship', label: 'Worship', color: '#84937d' },
-  { id: 'work', label: 'Work/Study', color: '#6e7f91' },
-  { id: 'exercise', label: 'Exercise', color: '#a67c6d' },
+  { id: 'worship', label: 'Religion & Prayer', color: '#84937d' },
+  { id: 'work', label: 'Work', color: '#6e7f91' },
+  { id: 'study', label: 'Study', color: '#5c838a' },
+  { id: 'exercise', label: 'Exercise/Gym', color: '#a67c6d' },
   { id: 'screen', label: 'Screen Time', color: '#b59a70' },
-  { id: 'social', label: 'Social/Family', color: '#a87c82' },
-  { id: 'read', label: 'Read/Relax', color: '#8b999c' }
+  { id: 'social_media', label: 'Social Media', color: '#c48f6a' },
+  { id: 'social', label: 'Social', color: '#a87c82' },
+  { id: 'family', label: 'Family', color: '#9c6f76' },
+  { id: 'friends', label: 'Friends', color: '#bd8491' },
+  { id: 'read', label: 'Read', color: '#8b999c' },
+  { id: 'bored', label: 'Bored/Doing Nothing', color: '#baa290' },
+  { id: 'chores', label: 'Chores', color: '#94a1a6' },
+  { id: 'waste', label: 'Waste of Time & Life', color: '#3d3c3c' }
 ];
 
-// Now accepting 'today' from your dashboard!
 export default function TimeGraph({ logs, today }) {
-  
-  // Calculate 30 days counting backward specifically from your app's 'today' date
   const getPast30Days = () => {
     const dates = [];
-    // Fallback to system date if today isn't provided yet
     const baseDate = today ? new Date(today) : new Date(); 
-    
     for (let i = 0; i < 30; i++) {
       const d = new Date(baseDate);
       d.setDate(d.getDate() - i);
@@ -33,7 +36,6 @@ export default function TimeGraph({ logs, today }) {
   TIME_CATEGORIES.forEach(cat => { categoryTotals[cat.id] = 0; });
   
   past30Dates.forEach(date => {
-    // Safely reads the array whether it is nested in .list or flat
     const blocks = logs[date]?.timeBlocks?.list || logs[date]?.timeBlocks;
     if (Array.isArray(blocks)) {
       blocks.forEach(catId => {
@@ -63,7 +65,7 @@ export default function TimeGraph({ logs, today }) {
           
           return (
             <div key={item.id} className="flex items-center text-sm">
-              <div className="w-28 text-right font-serif text-[#2c2b2a] pr-3 truncate">
+              <div className="w-28 text-right font-serif text-[#2c2b2a] pr-3 truncate" title={item.label}>
                 {item.label}
               </div>
               <div className="flex-1 bg-[#faf9f5] h-6 relative border-l border-gray-300">
