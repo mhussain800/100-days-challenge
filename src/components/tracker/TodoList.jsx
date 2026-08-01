@@ -1,68 +1,59 @@
-import React from 'react';
+import { Check, ListTodo, Plus, Trash2 } from 'lucide-react';
+
+const blankTodos = () => [
+  { id: 1, text: '', checked: false },
+  { id: 2, text: '', checked: false },
+  { id: 3, text: '', checked: false },
+];
 
 export default function TodoList({ date, logs, updateLog }) {
-  const savedTodos = logs[date]?.todos?.list || [
-    { id: 1, text: '', checked: false },
-    { id: 2, text: '', checked: false },
-    { id: 3, text: '', checked: false }
-  ];
-
-  const handleUpdate = (newTodos) => {
-    updateLog(date, 'todos', newTodos);
-  };
+  const savedTodos = logs[date]?.todos?.list || blankTodos();
+  const handleUpdate = (newTodos) => updateLog(date, 'todos', newTodos);
 
   const toggleCheck = (id) => {
-    handleUpdate(savedTodos.map(t => t.id === id ? { ...t, checked: !t.checked } : t));
+    handleUpdate(savedTodos.map((todo) => todo.id === id ? { ...todo, checked: !todo.checked } : todo));
   };
 
-  const updateText = (id, text) => {
-    handleUpdate(savedTodos.map(t => t.id === id ? { ...t, text } : t));
+  const updateText = (id, value) => {
+    handleUpdate(savedTodos.map((todo) => todo.id === id ? { ...todo, text: value } : todo));
   };
 
-  const addTodo = () => {
-    handleUpdate([...savedTodos, { id: Date.now(), text: '', checked: false }]);
-  };
+  const addTodo = () => handleUpdate([...savedTodos, { id: Date.now(), text: '', checked: false }]);
+  const removeTodo = (id) => handleUpdate(savedTodos.filter((todo) => todo.id !== id));
 
   return (
-    <div className="mt-8 mb-6 bg-white rounded p-5 border border-[#e5e0d3] shadow-sm">
-      <h3 className="text-xl italic font-serif text-[#2c2b2a] mb-4 border-b border-[#e5e0d3] pb-2">
-        Daily To-Do List
-      </h3>
-      
-      <div className="space-y-3">
+    <section className="tool-card todo-card">
+      <header className="tool-card-header">
+        <span className="tool-icon"><ListTodo size={19} /></span>
+        <span><strong>Daily to-do</strong><small>Small wins outside your habits</small></span>
+      </header>
+
+      <div className="todo-list">
         {savedTodos.map((todo) => (
-          // Changed to items-start and added mt-2 to keep checkbox aligned with top line of text
-          <div key={todo.id} className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              checked={todo.checked}
-              onChange={() => toggleCheck(todo.id)}
-              className="mt-2 w-6 h-6 accent-[#2c2b2a] rounded cursor-pointer shrink-0"
-            />
-            {/* Swapped input for an auto-expanding textarea */}
+          <div key={todo.id} className="todo-row" data-complete={todo.checked}>
+            <button
+              className="todo-check"
+              onClick={() => toggleCheck(todo.id)}
+              aria-label={`${todo.checked ? 'Uncheck' : 'Complete'} ${todo.text || 'to-do'}`}
+            >
+              {todo.checked && <Check size={13} strokeWidth={3} />}
+            </button>
             <textarea
               value={todo.text}
-              onChange={(e) => updateText(todo.id, e.target.value)}
-              onInput={(e) => {
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
+              onChange={(event) => updateText(todo.id, event.target.value)}
+              onInput={(event) => {
+                event.currentTarget.style.height = 'auto';
+                event.currentTarget.style.height = `${event.currentTarget.scrollHeight}px`;
               }}
-              placeholder="Task..."
+              placeholder="What else needs your attention?"
               rows={1}
-              className={`flex-1 bg-transparent border-b border-dashed border-[#e5e0d3] focus:border-[#2c2b2a] outline-none text-[#2c2b2a] text-lg px-1 py-1 transition-all resize-none overflow-hidden min-h-[36px] ${
-                todo.checked ? 'line-through opacity-40 italic' : ''
-              }`}
             />
+            <button className="todo-remove" onClick={() => removeTodo(todo.id)} aria-label="Remove to-do"><Trash2 size={15} /></button>
           </div>
         ))}
       </div>
 
-      <button
-        onClick={addTodo}
-        className="mt-5 text-sm font-bold font-mono text-[#64748b] hover:text-[#2c2b2a] flex items-center gap-1 transition-colors"
-      >
-        + Add new task
-      </button>
-    </div>
+      <button className="text-button add-todo" onClick={addTodo}><Plus size={15} /> Add to-do</button>
+    </section>
   );
 }

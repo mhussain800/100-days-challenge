@@ -1,69 +1,94 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+import { Activity, Check, Flame, Layers3 } from 'lucide-react';
 import SalahGraph from './SalahGraph';
-import { getDaysArray, getToday } from '../../utils/helpers';
+import { getDaysArray, parseDateKey, toDateKey } from '../../utils/helpers';
 import TimeGraph from './TimeGraph';
 import WeeklyGraph from './WeeklyGraph';
 
-export default function DashboardView({ tasks, logs, startDate, userName }) {
-  const days100 = useMemo(() => getDaysArray(startDate, 100), [startDate]);
-  const today = getToday();
+const PRAYER_IDS = new Set(['fajar', 'zuhar', 'asar', 'maghrib', 'isha']);
 
-  const isCompleted = (task, dataObj) => {
-    if (!dataObj) return false;
-    switch(task.type) {
-      case 'bool': return !!dataObj.checked;
-      // FIX: Now, if the box is checked, it counts as completed, even if it's Qaza!
-      case 'bool_select': return !!dataObj.checked; 
-      default: return !!dataObj.checked;
-    }
-  };
+export default function DashboardView({ tasks, logs, startDate, userName, today }) {
+  const days100 = useMemo(() => getDaysArray(startDate, 100), [startDate]);
+  const todayLog = logs[today] || {};
+
+  const isCompleted = (task, data) => !!task && !!data?.checked;
 
   const getStreak = (task) => {
     let streak = 0;
-    const sortedDays = Object.keys(logs).sort().reverse();
-    for (let day of sortedDays) {
-      if (day > today) continue; 
-      if (isCompleted(task, logs[day]?.[task.id])) streak++;
-      else if (day < today) break;
+    const cursor = parseDateKey(today);
+
+    if (!isCompleted(task, logs[today]?.[task.id])) cursor.setDate(cursor.getDate() - 1);
+    for (let index = 0; index < 100; index += 1) {
+      const day = toDateKey(cursor);
+      if (!isCompleted(task, logs[day]?.[task.id])) break;
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
     }
     return streak;
   };
 
+  const taskStreaks = tasks.map((task) => ({ task, streak: getStreak(task) }));
+  const completedToday = tasks.filter((task) => isCompleted(task, todayLog[task.id])).length;
+  const completionRate = tasks.length ? Math.round((completedToday / tasks.length) * 100) : 0;
+  const bestStreak = taskStreaks.reduce((best, item) => Math.max(best, item.streak), 0);
+  const prayerTasks = tasks.filter((task) => PRAYER_IDS.has(task.id));
+
   return (
-    <div className="space-y-6 pb-12">
-      <div className="bg-[#2c2b2a] text-[#fdfbf7] p-6 rounded shadow-lg flex justify-between items-center">
+    <div className="page-stack dashboard-page">
+      <section className="dashboard-hero">
         <div>
-          <h2 className="text-3xl italic mb-1">{userName}'s Dashboard</h2>
-          <p className="font-mono text-sm opacity-80">Track your consistency across 100 days.</p>
+          <span className="eyebrow">Your momentum</span>
+          <h1>{userName}&apos;s Insights</h1>
+          <p>A clear view of the routines you&apos;re building, one day at a time.</p>
         </div>
+        <div className="hero-progress">
+          <strong>{completionRate}%</strong>
+          <span>complete today</span>
+        </div>
+      </section>
+
+      <section className="summary-grid" aria-label="Today's summary">
+        <div className="summary-card"><span className="summary-icon"><Check size={18} /></span><span><strong>{completedToday}</strong><small>Done today</small></span></div>
+        <div className="summary-card"><span className="summary-icon"><Layers3 size={18} /></span><span><strong>{tasks.length}</strong><small>Active tasks</small></span></div>
+        <div className="summary-card"><span className="summary-icon"><Flame size={18} /></span><span><strong>{bestStreak}</strong><small>Best streak</small></span></div>
+        <div className="summary-card"><span className="summary-icon"><Activity size={18} /></span><span><strong>{Object.keys(logs).length}</strong><small>Days logged</small></span></div>
+      </section>
+
+      <div className="charts-grid">
+        {prayerTasks.length > 0 && <SalahGraph logs={logs} days100={days100} today={today} prayerTasks={prayerTasks} />}
+        <TimeGraph logs={logs} today={today} />
+        <WeeklyGraph logs={logs} today={today} />
       </div>
-      <SalahGraph logs={logs} days100={days100} today={today} />
-      <TimeGraph logs={logs} />
-      <WeeklyGraph logs={logs} today={today} />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {tasks.map(task => {
-          const streak = getStreak(task);
-          return (
-            <div key={task.id} className="border border-[#e5e0d3] rounded bg-white p-4 flex flex-col hover:shadow-md transition">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg leading-tight w-2/3">{task.label}</h3>
-                <div className="text-right">
-                  <div className="text-2xl font-bold font-mono text-[#2c2b2a]">{streak}</div>
-                  <div className="text-[10px] uppercase font-mono tracking-wider text-gray-500">Streak</div>
+
+      <section>
+        <div className="content-section-heading">
+          <div><span className="eyebrow">Every habit</span><h2>100-day progress</h2></div>
+          <p>Each square represents one day.</p>
+        </div>
+
+        {tasks.length ? (
+          <div className="habit-widget-grid">
+            {taskStreaks.map(({ task, streak }) => (
+              <article key={task.id} className="habit-widget">
+                <header>
+                  <span className="widget-title"><i className="category-dot" /><span><strong>{task.label}</strong><small>{task.category}{task.custom ? ' · Custom' : ''}</small></span></span>
+                  <span className="streak"><strong>{streak}</strong><small>day streak</small></span>
+                </header>
+                <div className="heatmap" aria-label={`${task.label} 100-day completion map`}>
+                  {days100.map((day) => {
+                    const done = isCompleted(task, logs[day]?.[task.id]);
+                    const future = day > today;
+                    const missed = day < today && !done;
+                    return <span key={day} className="heat-cell" data-done={done} data-missed={missed} data-future={future} title={`${day}: ${done ? 'Complete' : future ? 'Upcoming' : missed ? 'Missed' : 'Pending'}`} />;
+                  })}
                 </div>
-              </div>
-              <div className="grid grid-cols-[repeat(20,minmax(0,1fr))] gap-[2px] mt-auto">
-                {days100.map(day => {
-                  const done = isCompleted(task, logs[day]?.[task.id]);
-                  const isFuture = day > today;
-                  let bgColor = done ? 'bg-[#4a4844]' : (!isFuture && day <= today ? 'bg-[#eab308]/20' : 'bg-[#f2efe6]');
-                  return <div key={day} className={`w-full aspect-square rounded-[1px] ${bgColor} ${isFuture ? 'opacity-30' : ''}`} />;
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state compact-empty"><h3>No active task widgets</h3><p>Add a custom task in Settings and its progress will appear here.</p></div>
+        )}
+      </section>
     </div>
   );
 }
