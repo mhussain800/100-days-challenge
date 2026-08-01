@@ -65,7 +65,7 @@ export default function Login() {
   return (
     <main className="auth-screen">
       <section className="auth-intro">
-        <span className="auth-logo"><Check size={28} strokeWidth={3} /></span>
+        <span className="auth-logo"><img src="/icon-192.png" alt="100 Days" /></span>
         <span className="eyebrow">Your personal focus system</span>
         <h1>Small promises.<br />Kept every day.</h1>
         <p>Build a 100-day practice around the routines that matter to you, then watch your consistency grow.</p>

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import {
   CalendarCheck,
   ChartNoAxesColumnIncreasing,
-  Check,
   LogOut,
   Settings,
 } from 'lucide-react';
@@ -281,7 +280,7 @@ export default function App() {
   if (authLoading) {
     return (
       <div className="app-shell loading-screen" data-theme={theme} data-color-mode={resolvedColorMode}>
-        <div className="loading-mark"><Check size={22} /></div>
+        <div className="loading-mark"><img src="/icon-192.png" alt="" /></div>
         <p>Preparing your day…</p>
       </div>
     );
@@ -301,7 +300,7 @@ export default function App() {
     <div className="app-shell" data-theme={theme} data-color-mode={resolvedColorMode}>
       <header className="app-header">
         <button className="brand" onClick={() => setView('tracker')} aria-label="Go to today">
-          <span className="brand-icon"><Check size={17} strokeWidth={3} /></span>
+          <span className="brand-icon"><img src="/icon-192.png" alt="" /></span>
           <span>
             <strong><span className="brand-title">100 Days</span><span className="brand-day">Day {currentDayNumber}/100</span></strong>
             <small>Day {currentDayNumber} of 100</small>
