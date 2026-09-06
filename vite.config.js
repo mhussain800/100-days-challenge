@@ -7,13 +7,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon-192.png', 'icon-512.png'],
+      includeAssets: ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
         name: '100 Days Challenge Ledger',
         short_name: '100 Days',
-        description: 'A tactile habit and spiritual tracking ledger.',
-        theme_color: '#fdfbf7',
-        background_color: '#fdfbf7',
+        description: 'A personal, customizable 100-day habit and focus system.',
+        theme_color: '#f2f2f7',
+        background_color: '#f2f2f7',
         display: 'standalone',
         icons: [
           {
