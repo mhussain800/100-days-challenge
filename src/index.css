@@ -852,3 +852,92 @@ textarea:focus-visible {
     font-size: 16px !important;
   }
 }
+
+/* Keep the entry sheet fully within the visible viewport. Desktop uses a
+   centered dialog; phones get a true full-height sheet above the blur layer. */
+.study-sheet-backdrop {
+  z-index: 100;
+  align-items: center;
+  overflow: auto;
+  padding: 24px;
+}
+
+.study-session-sheet,
+.study-details-sheet {
+  position: relative;
+  z-index: 1;
+  width: min(860px, 100%);
+  max-height: calc(100dvh - 48px);
+  min-height: 0;
+  flex-shrink: 0;
+  border-radius: 28px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.study-details-layer { z-index: 3; }
+
+/* A subject row has four independent areas: colour, name, goal, and actions.
+   The previous three-column grid caused the goal/actions to wrap into the name. */
+.study-settings-row {
+  grid-template-columns: 34px minmax(0, 1.4fr) minmax(110px, .55fr) auto;
+  align-items: stretch;
+}
+
+.study-setting-name,
+.study-goal-input {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 3px;
+  height: auto;
+  padding: 6px 10px;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.study-setting-name > span,
+.study-goal-input > span:first-child {
+  color: var(--text-tertiary);
+  font-family: var(--font-data);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.study-setting-name input,
+.study-goal-control input {
+  min-width: 0;
+  width: 100%;
+  height: 23px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.study-goal-control { display: flex; align-items: center; gap: 5px; }
+.study-goal-control small { color: var(--text-secondary); font-family: var(--font-data); font-size: 11px; }
+
+@media (max-width: 640px) {
+  .study-sheet-backdrop { align-items: flex-end; padding: 0; }
+
+  .study-session-sheet,
+  .study-details-sheet {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 0;
+    border-radius: 26px 26px 0 0;
+  }
+
+  .study-settings-row {
+    grid-template-columns: 34px minmax(0, 1fr) minmax(82px, .5fr);
+  }
+
+  .study-setting-actions { grid-column: 2 / -1; }
+}
