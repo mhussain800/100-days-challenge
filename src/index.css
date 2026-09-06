@@ -941,3 +941,63 @@ textarea:focus-visible {
 
   .study-setting-actions { grid-column: 2 / -1; }
 }
+
+/* Phone study entry: one compact, complete first view. The dropdown is the
+   single subject picker here, so the duplicate subject-button grid is hidden. */
+@media (max-width: 640px) {
+  html,
+  body { touch-action: pan-x pan-y; }
+
+  .study-session-sheet {
+    padding: 5px 14px max(8px, env(safe-area-inset-bottom));
+  }
+
+  .study-sheet-grabber { height: 4px; margin: 1px auto 4px; }
+  .study-sheet-heading { min-height: 42px; padding-bottom: 3px; }
+  .study-sheet-heading h2 { font-size: 21px; }
+  .study-sheet-heading time { font-size: 11px; }
+  .study-sheet-close { width: 34px; height: 34px; }
+
+  .study-session-form { gap: 7px; padding-top: 3px; }
+  .study-fieldset legend,
+  .study-compact-field > span,
+  .study-topic-field > span { margin-bottom: 3px; font-size: 10px; }
+
+  .study-subject-select select { min-height: 38px; }
+  .study-subject-options { display: none; }
+
+  .study-duration-value-row { grid-template-columns: 36px minmax(0, 1fr) 36px; gap: 10px; }
+  .duration-stepper { width: 34px; height: 34px; }
+  .study-duration-value input { width: 76px; font-size: 42px; }
+  .study-duration-value small { font-size: 16px; }
+  .study-duration-slider-wrap { padding-top: 3px; }
+  .study-duration-slider { height: 16px; }
+  .study-duration-ruler { height: 7px; }
+  .study-duration-ruler i { height: 5px; }
+  .study-duration-ruler-labels { font-size: 8px; }
+  .study-duration-presets { gap: 3px; margin-top: 4px; }
+  .study-duration-presets button { min-height: 29px; font-size: 9px; }
+
+  .study-form-pair { gap: 8px; }
+  .study-mode-options button,
+  .study-compact-field select,
+  .study-topic-field input { min-height: 38px; }
+
+  .confidence-scale { height: 74px; gap: 7px; padding: 0 5px; }
+  .confidence-scale button { min-height: 28px; font-size: 14px; }
+  .confidence-scale button:nth-child(1) { --confidence-height: 30px; }
+  .confidence-scale button:nth-child(2) { --confidence-height: 38px; }
+  .confidence-scale button:nth-child(3) { --confidence-height: 46px; }
+  .confidence-scale button:nth-child(4) { --confidence-height: 54px; }
+  .confidence-scale button:nth-child(5) { --confidence-height: 62px; }
+  .confidence-copy { margin-top: 3px; font-size: 9px; }
+  .confidence-copy strong { font-size: 9px; }
+
+  .study-details-disclosure { min-height: 45px; grid-template-columns:34px minmax(0, 1fr) auto; gap: 9px; padding: 5px 10px; }
+  .study-details-plus { width: 30px; height: 30px; }
+  .study-details-disclosure small { font-size: 10px; }
+
+  .study-sheet-footer { grid-template-columns: 1fr; gap: 3px; }
+  .study-sheet-footer .form-error:empty { display: none; }
+  .study-save-button { width: 100%; min-height: 43px; }
+}
