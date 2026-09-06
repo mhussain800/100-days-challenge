@@ -318,12 +318,12 @@ textarea:focus-visible {
 .page-stack { display: flex; flex-direction: column; gap: 26px; }
 
 /* Apple-like motion: short, interruptible feedback with spatial continuity. */
-.page-stack { opacity: 1; transform: translateY(0); transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out); }
+.page-stack { opacity: 1; transition: opacity 220ms var(--ease-out); }
 .modal-backdrop, .study-sheet-backdrop { opacity: 1; transition: opacity 250ms var(--ease-out); }
 .confirm-dialog { opacity: 1; transform: scale(1); transition: opacity 250ms var(--ease-out), transform 250ms var(--ease-out); }
 .task-sheet, .study-session-sheet, .study-details-sheet { opacity: 1; transform: translateY(0); transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-drawer); }
 @starting-style {
-  .page-stack { opacity: 0; transform: translateY(8px); }
+  .page-stack { opacity: 0; }
   .modal-backdrop, .study-sheet-backdrop { opacity: 0; }
   .confirm-dialog { opacity: 0; transform: scale(.96); }
   .task-sheet, .study-session-sheet, .study-details-sheet { opacity: 0; transform: translateY(8%); }

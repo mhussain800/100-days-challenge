@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronRight, Minus, Plus, X } from 'lucide-react';
 import {
   STUDY_ACTIVITY_OPTIONS,
@@ -123,7 +124,9 @@ export default function StudySessionSheet({
     }
   };
 
-  return (
+  // The study sheet is a viewport-level dialog. Portaling it prevents an
+  // ancestor's layout, clipping, filter, or transform from hiding it.
+  return createPortal(
     <div className="study-sheet-backdrop" role="presentation" onMouseDown={onClose}>
       <section
         className="study-session-sheet"
@@ -266,5 +269,5 @@ export default function StudySessionSheet({
         )}
       </section>
     </div>
-  );
+  , document.body);
 }
