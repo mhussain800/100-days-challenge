@@ -1,12 +1,14 @@
-import { Check, X } from 'lucide-react';
+import { Check, Clock3, X } from 'lucide-react';
 
 export default function TaskRow({ task, value, onChange, isPast = false }) {
   const checked = !!value.checked;
   const missed = isPast && !checked;
+  const managedByStudyLog = task.managedBy === 'study_sessions';
 
   const detailField = () => {
     const showWhenIncomplete = task.detailWhen === 'incomplete';
     const showDetails = showWhenIncomplete ? !checked : checked;
+    if (managedByStudyLog) return <span className="task-managed-value"><Clock3 size={13} />{checked ? `${value.val || 0} hrs logged above` : 'Log a study session above'}</span>;
     if (!showDetails || task.type === 'bool') return null;
 
     if (task.type === 'bool_select') {
@@ -57,7 +59,9 @@ export default function TaskRow({ task, value, onChange, isPast = false }) {
         role="switch"
         aria-checked={checked}
         aria-label={`${checked ? 'Mark incomplete' : 'Complete'} ${task.label}`}
-        onClick={() => onChange('checked', !checked)}
+        onClick={() => !managedByStudyLog && onChange('checked', !checked)}
+        disabled={managedByStudyLog}
+        title={managedByStudyLog ? 'Calculated from your Study log' : undefined}
       >
         {missed ? <X size={15} strokeWidth={3} /> : <Check size={15} strokeWidth={3} />}
       </button>

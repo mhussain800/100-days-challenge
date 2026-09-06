@@ -14,6 +14,8 @@ import {
   X,
 } from 'lucide-react';
 import CustomTaskForm from './CustomTaskForm';
+import StudySettings from '../study/StudySettings';
+import CardOrderSettings from './CardOrderSettings';
 
 const THEME_OPTIONS = [
   { id: 'ios', name: 'iOS Focus', description: 'Clean, calm and designed around native-feeling controls.' },
@@ -39,6 +41,13 @@ export default function SettingsView({
   onRemoveTask,
   onRemoveDefaultTasks,
   onRestoreDefaults,
+  studySubjects,
+  studySources,
+  weeklyStudyGoals,
+  onSaveStudySettings,
+  todayCardOrder,
+  insightsCardOrder,
+  onSaveCardOrder,
 }) {
   const [newSection, setNewSection] = useState('');
   const [sectionError, setSectionError] = useState('');
@@ -117,6 +126,9 @@ export default function SettingsView({
           </div>
         </div>
       </section>
+
+      <StudySettings subjects={studySubjects} sources={studySources} weeklyGoals={weeklyStudyGoals} onSave={onSaveStudySettings} />
+      <CardOrderSettings todayCardOrder={todayCardOrder} insightsCardOrder={insightsCardOrder} onChange={onSaveCardOrder} />
 
       <section className="settings-section" id="custom-task-form">
         <div className="section-title-row">

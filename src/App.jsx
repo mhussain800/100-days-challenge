@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 
 import { DEFAULT_SECTIONS, DEFAULT_TASKS, normalizeSections, normalizeTasks } from './data/tasks';
+import { DEFAULT_STUDY_SOURCES, DEFAULT_STUDY_SUBJECTS, makeStudySubject, normalizeStudyGoals, normalizeStudySources, normalizeStudySubjects, sanitizeStudySession } from './data/study';
+import { DEFAULT_INSIGHTS_CARD_ORDER, DEFAULT_TODAY_CARD_ORDER, normalizeCardOrder } from './data/layout';
 import { getToday, parseDateKey } from './utils/helpers';
 
 import Login from './components/auth/Login';
@@ -14,10 +16,11 @@ import NameModal from './components/auth/NameModal';
 import TrackerView from './components/tracker/TrackerView';
 import DashboardView from './components/dashboard/DashboardView';
 import SettingsView from './components/settings/SettingsView';
+import StudyPreview from './components/study/StudyPreview';
 
 import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
+import { Timestamp, collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 
 const VALID_THEMES = new Set(['ios', 'ledger']);
 const VALID_COLOR_MODES = new Set(['light', 'dark', 'system']);
@@ -36,6 +39,12 @@ export default function App() {
   const [logs, setLogs] = useState({});
   const [tasks, setTasks] = useState(DEFAULT_TASKS);
   const [sections, setSections] = useState(DEFAULT_SECTIONS);
+  const [studySubjects, setStudySubjects] = useState(DEFAULT_STUDY_SUBJECTS);
+  const [studySources, setStudySources] = useState(DEFAULT_STUDY_SOURCES);
+  const [weeklyStudyGoals, setWeeklyStudyGoals] = useState({});
+  const [todayCardOrder, setTodayCardOrder] = useState(DEFAULT_TODAY_CARD_ORDER);
+  const [insightsCardOrder, setInsightsCardOrder] = useState(DEFAULT_INSIGHTS_CARD_ORDER);
+  const [studySessions, setStudySessions] = useState([]);
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('challenge_theme');
     return VALID_THEMES.has(savedTheme) ? savedTheme : DEFAULT_THEME;
@@ -115,6 +124,12 @@ export default function App() {
         setLogs({});
         setTasks(DEFAULT_TASKS);
         setSections(DEFAULT_SECTIONS);
+        setStudySubjects(DEFAULT_STUDY_SUBJECTS);
+        setStudySources(DEFAULT_STUDY_SOURCES);
+        setWeeklyStudyGoals({});
+        setTodayCardOrder(DEFAULT_TODAY_CARD_ORDER);
+        setInsightsCardOrder(DEFAULT_INSIGHTS_CARD_ORDER);
+        setStudySessions([]);
         setStartDate(getToday());
         setAuthLoading(false);
         return;
@@ -164,6 +179,11 @@ export default function App() {
         setSections(DEFAULT_SECTIONS);
         setTheme(DEFAULT_THEME);
         setColorMode(DEFAULT_COLOR_MODE);
+        setStudySubjects(DEFAULT_STUDY_SUBJECTS);
+        setStudySources(DEFAULT_STUDY_SOURCES);
+        setWeeklyStudyGoals({});
+        setTodayCardOrder(DEFAULT_TODAY_CARD_ORDER);
+        setInsightsCardOrder(DEFAULT_INSIGHTS_CARD_ORDER);
         localStorage.setItem('challenge_theme', DEFAULT_THEME);
         localStorage.setItem('challenge_color_mode', DEFAULT_COLOR_MODE);
         return;
@@ -173,6 +193,11 @@ export default function App() {
       const savedTasks = normalizeTasks(preferences.tasks);
       setTasks(savedTasks);
       setSections(normalizeSections(preferences.sections, savedTasks));
+      setStudySubjects(normalizeStudySubjects(preferences.studySubjects));
+      setStudySources(normalizeStudySources(preferences.studySources));
+      setWeeklyStudyGoals(normalizeStudyGoals(preferences.weeklyStudyGoals));
+      setTodayCardOrder(normalizeCardOrder(preferences.todayCardOrder, DEFAULT_TODAY_CARD_ORDER));
+      setInsightsCardOrder(normalizeCardOrder(preferences.insightsCardOrder, DEFAULT_INSIGHTS_CARD_ORDER));
 
       const savedTheme = VALID_THEMES.has(preferences.theme) ? preferences.theme : DEFAULT_THEME;
       const savedColorMode = VALID_COLOR_MODES.has(preferences.colorMode) ? preferences.colorMode : DEFAULT_COLOR_MODE;
@@ -184,6 +209,19 @@ export default function App() {
       console.error('Preferences sync error:', error);
       showSaveStatus('Settings offline');
     });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return undefined;
+    return onSnapshot(collection(db, 'users', user.uid, 'study_sessions'), (snapshot) => {
+      const fetchedSessions = snapshot.docs.map((sessionDoc) => {
+        const data = sessionDoc.data();
+        const normalized = sanitizeStudySession(data);
+        if (!normalized.subjectId || !normalized.dateKey || !normalized.topic) return null;
+        return { id: sessionDoc.id, ...normalized, createdAt: data.createdAt, updatedAt: data.updatedAt };
+      }).filter(Boolean).sort((first, second) => first.dateKey.localeCompare(second.dateKey));
+      setStudySessions(fetchedSessions);
+    }, (error) => { console.error('Study sessions sync error:', error); showSaveStatus('Study sync unavailable'); });
   }, [user]);
 
   useEffect(() => () => {
@@ -226,16 +264,31 @@ export default function App() {
     nextTheme = theme,
     nextColorMode = colorMode,
     nextSections = sections,
+    nextStudySubjects = studySubjects,
+    nextStudySources = studySources,
+    nextWeeklyStudyGoals = weeklyStudyGoals,
+    nextTodayCardOrder = todayCardOrder,
+    nextInsightsCardOrder = insightsCardOrder,
   } = {}) => {
     const safeTasks = normalizeTasks(nextTasks);
     const safeTheme = VALID_THEMES.has(nextTheme) ? nextTheme : DEFAULT_THEME;
     const safeColorMode = VALID_COLOR_MODES.has(nextColorMode) ? nextColorMode : DEFAULT_COLOR_MODE;
     const safeSections = normalizeSections(nextSections, safeTasks);
+    const safeStudySubjects = normalizeStudySubjects(nextStudySubjects);
+    const safeStudySources = normalizeStudySources(nextStudySources);
+    const safeWeeklyStudyGoals = normalizeStudyGoals(nextWeeklyStudyGoals);
+    const safeTodayCardOrder = normalizeCardOrder(nextTodayCardOrder, DEFAULT_TODAY_CARD_ORDER);
+    const safeInsightsCardOrder = normalizeCardOrder(nextInsightsCardOrder, DEFAULT_INSIGHTS_CARD_ORDER);
 
     setTasks(safeTasks);
     setSections(safeSections);
     setTheme(safeTheme);
     setColorMode(safeColorMode);
+    setStudySubjects(safeStudySubjects);
+    setStudySources(safeStudySources);
+    setWeeklyStudyGoals(safeWeeklyStudyGoals);
+    setTodayCardOrder(safeTodayCardOrder);
+    setInsightsCardOrder(safeInsightsCardOrder);
     localStorage.setItem('challenge_theme', safeTheme);
     localStorage.setItem('challenge_color_mode', safeColorMode);
     showSaveStatus('Saving…');
@@ -247,12 +300,19 @@ export default function App() {
         sections: safeSections,
         theme: safeTheme,
         colorMode: safeColorMode,
+        studySubjects: safeStudySubjects,
+        studySources: safeStudySources,
+        weeklyStudyGoals: safeWeeklyStudyGoals,
+        todayCardOrder: safeTodayCardOrder,
+        insightsCardOrder: safeInsightsCardOrder,
         updatedAt: Date.now(),
       }, { merge: true });
       showSaveStatus('Saved', 1800);
+      return true;
     } catch (error) {
       console.error('Preferences save error:', error);
       showSaveStatus('Could not save');
+      return false;
     }
   };
 
@@ -276,6 +336,56 @@ export default function App() {
   });
   const changeTheme = (nextTheme) => savePreferences({ nextTheme });
   const changeColorMode = (nextColorMode) => savePreferences({ nextColorMode });
+  const saveStudySettings = ({ subjects: nextStudySubjects, sources: nextStudySources, weeklyGoals: nextWeeklyStudyGoals }) => savePreferences({ nextStudySubjects, nextStudySources, nextWeeklyStudyGoals });
+  const addStudySubject = async (name) => {
+    const cleanName = name.trim();
+    if (!cleanName) throw new Error('Enter a subject name.');
+    if (studySubjects.some((subject) => subject.name.toLocaleLowerCase() === cleanName.toLocaleLowerCase())) throw new Error('That subject already exists.');
+    return savePreferences({ nextStudySubjects: [...studySubjects, makeStudySubject(cleanName, studySubjects.length)] });
+  };
+  const saveCardOrder = ({ todayCardOrder: nextTodayCardOrder = todayCardOrder, insightsCardOrder: nextInsightsCardOrder = insightsCardOrder }) => savePreferences({ nextTodayCardOrder, nextInsightsCardOrder });
+  const syncStudyHabitForDates = async (nextSessions, dateKeys) => {
+    const nextLogs = { ...logs };
+    dateKeys.forEach((dateKey) => {
+      const totalMinutes = nextSessions.filter((session) => session.dateKey === dateKey).reduce((total, session) => total + Number(session.durationMinutes || 0), 0);
+      const hours = totalMinutes ? (totalMinutes / 60).toFixed(2).replace(/\.?0+$/, '') : '';
+      nextLogs[dateKey] = { ...(nextLogs[dateKey] || {}), study: { ...(nextLogs[dateKey]?.study || {}), checked: totalMinutes > 0, val: hours }, timestamp: Date.now() };
+    });
+    setLogs(nextLogs);
+    await setDoc(doc(db, 'users', user.uid, 'challenge_data', 'logs'), { records: nextLogs }, { merge: true });
+  };
+  const saveStudySession = async (session) => {
+    const safeSession = sanitizeStudySession(session);
+    const existingSession = session.id ? studySessions.find((item) => item.id === session.id) : null;
+    const sessionRef = session.id ? doc(db, 'users', user.uid, 'study_sessions', session.id) : doc(collection(db, 'users', user.uid, 'study_sessions'));
+    const optimisticSession = { id: sessionRef.id, ...safeSession, createdAt: existingSession?.createdAt || Date.now(), updatedAt: Date.now() };
+    const nextSessions = [...studySessions.filter((item) => item.id !== sessionRef.id), optimisticSession].sort((first, second) => first.dateKey.localeCompare(second.dateKey));
+    const affectedDates = new Set([safeSession.dateKey]);
+    if (existingSession?.dateKey) affectedDates.add(existingSession.dateKey);
+    setStudySessions(nextSessions);
+    showSaveStatus('Saving…');
+    try {
+      await setDoc(sessionRef, { ...safeSession, studyDate: Timestamp.fromDate(parseDateKey(safeSession.dateKey)), updatedAt: serverTimestamp(), ...(existingSession ? {} : { createdAt: serverTimestamp() }) }, { merge: !!existingSession });
+      await syncStudyHabitForDates(nextSessions, affectedDates);
+      showSaveStatus('Study session saved', 1800);
+    } catch (error) { setStudySessions(studySessions); showSaveStatus('Could not save'); throw error; }
+  };
+  const deleteStudySession = async (session) => {
+    const nextSessions = studySessions.filter((item) => item.id !== session.id);
+    setStudySessions(nextSessions);
+    showSaveStatus('Deleting…');
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'study_sessions', session.id));
+      await syncStudyHabitForDates(nextSessions, new Set([session.dateKey]));
+      showSaveStatus('Study session deleted', 1800);
+    } catch (error) { setStudySessions(studySessions); showSaveStatus('Could not delete'); throw error; }
+  };
+
+  const previewMode = import.meta.env.DEV && new URLSearchParams(window.location.search).get('studyPreview');
+  if (previewMode) {
+    const previewParams = new URLSearchParams(window.location.search);
+    return <StudyPreview theme={previewParams.get('theme') === 'ledger' ? 'ledger' : 'ios'} screen={previewParams.get('screen') || 'sheet'} />;
+  }
 
   if (authLoading) {
     return (
@@ -332,14 +442,22 @@ export default function App() {
             sections={sections}
             logs={logs}
             today={today}
+            theme={theme}
             currentDate={currentDate}
             setCurrentDate={setCurrentDate}
             updateTask={updateTask}
             onAddTask={addTask}
+            studySubjects={studySubjects}
+            studySources={studySources}
+            studySessions={studySessions}
+            onSaveStudySession={saveStudySession}
+            onDeleteStudySession={deleteStudySession}
+            todayCardOrder={todayCardOrder}
+            onAddStudySubject={addStudySubject}
           />
         )}
         {view === 'dashboard' && (
-          <DashboardView tasks={tasks} logs={logs} startDate={startDate} userName={userName} today={today} />
+          <DashboardView tasks={tasks} logs={logs} startDate={startDate} userName={userName} today={today} studySessions={studySessions} studySubjects={studySubjects} weeklyStudyGoals={weeklyStudyGoals} insightsCardOrder={insightsCardOrder} />
         )}
         {view === 'settings' && (
           <SettingsView
@@ -355,6 +473,13 @@ export default function App() {
             onRemoveTask={removeTask}
             onRemoveDefaultTasks={removeDefaultTasks}
             onRestoreDefaults={restoreDefaultTasks}
+            studySubjects={studySubjects}
+            studySources={studySources}
+            weeklyStudyGoals={weeklyStudyGoals}
+            onSaveStudySettings={saveStudySettings}
+            todayCardOrder={todayCardOrder}
+            insightsCardOrder={insightsCardOrder}
+            onSaveCardOrder={saveCardOrder}
           />
         )}
       </main>

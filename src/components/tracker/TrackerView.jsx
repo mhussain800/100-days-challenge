@@ -4,6 +4,7 @@ import TaskRow from './TaskRow';
 import TodoList from './TodoList';
 import TimeBlocker from './TimeBlocker';
 import CustomTaskForm from '../settings/CustomTaskForm';
+import StudyLogSection from '../study/StudyLogSection';
 import { parseDateKey, toDateKey } from '../../utils/helpers';
 
 const formatHeadingDate = (date) => parseDateKey(date).toLocaleDateString('en-US', {
@@ -12,7 +13,7 @@ const formatHeadingDate = (date) => parseDateKey(date).toLocaleDateString('en-US
   day: 'numeric',
 });
 
-export default function TrackerView({ tasks, sections, logs, today, currentDate, setCurrentDate, updateTask, onAddTask }) {
+export default function TrackerView({ tasks, sections, logs, today, theme, currentDate, setCurrentDate, updateTask, onAddTask, studySubjects, studySources, studySessions, onSaveStudySession, onDeleteStudySession, todayCardOrder, onAddStudySubject }) {
   const [taskSheetCategory, setTaskSheetCategory] = useState(null);
   const currentLog = logs[currentDate] || {};
   const grouped = tasks.reduce((groups, task) => {
@@ -30,6 +31,21 @@ export default function TrackerView({ tasks, sections, logs, today, currentDate,
   };
 
   const openTaskSheet = (category) => setTaskSheetCategory(category || sections[0] || 'Personal');
+  const habitCard = sections.length ? (
+    <div className="tracker-grid">
+      {sections.map((category) => {
+        const categoryTasks = grouped[category] || [];
+        const categoryComplete = categoryTasks.filter((task) => currentLog[task.id]?.checked).length;
+        return <section key={category} className="task-group"><header className="task-group-header"><span><i className="category-dot" /><strong>{category}</strong></span><span className="task-group-actions"><small>{categoryComplete}/{categoryTasks.length}</small><button onClick={() => openTaskSheet(category)} aria-label={`Add a task to ${category}`}><Plus size={15} /></button></span></header><div className="task-list">{categoryTasks.map((task) => <TaskRow key={task.id} task={task} value={currentLog[task.id] || {}} isPast={isPastDate} onChange={(field, value) => updateTask(task.id, field, value)} />)}{!categoryTasks.length && <button className="empty-section-row" onClick={() => openTaskSheet(category)}><Plus size={15} /> Add the first task</button>}</div></section>;
+      })}
+    </div>
+  ) : <div className="empty-state"><span className="empty-icon"><ListChecks size={28} /></span><h2>Build a tracker that fits you</h2><p>Add your first task here, or create and organize sections in Settings.</p><button className="primary-button" onClick={() => openTaskSheet('Personal')}><Plus size={17} /> Add your first task</button></div>;
+  const todayCards = {
+    habits: habitCard,
+    study: <StudyLogSection dateKey={currentDate} theme={theme} subjects={studySubjects} sources={studySources} sessions={studySessions.filter((session) => session.dateKey === currentDate)} onSaveSession={onSaveStudySession} onDeleteSession={onDeleteStudySession} onAddSubject={onAddStudySubject} />,
+    time: <TimeBlocker date={currentDate} logs={logs} updateLog={(_, field, value) => updateTask(field, 'list', value)} />,
+    todos: <TodoList date={currentDate} logs={logs} updateLog={(_, __, newTodos) => updateTask('todos', 'list', newTodos)} />,
+  };
 
   return (
     <div className="page-stack">
@@ -52,43 +68,7 @@ export default function TrackerView({ tasks, sections, logs, today, currentDate,
         <div className="progress-track" aria-label={`${completion}% complete`}><span style={{ width: `${completion}%` }} /></div>
       </section>
 
-      {sections.length ? (
-        <div className="tracker-grid">
-          {sections.map((category) => {
-            const categoryTasks = grouped[category] || [];
-            const categoryComplete = categoryTasks.filter((task) => currentLog[task.id]?.checked).length;
-            return (
-              <section key={category} className="task-group">
-                <header className="task-group-header">
-                  <span><i className="category-dot" /><strong>{category}</strong></span>
-                  <span className="task-group-actions">
-                    <small>{categoryComplete}/{categoryTasks.length}</small>
-                    <button onClick={() => openTaskSheet(category)} aria-label={`Add a task to ${category}`}><Plus size={15} /></button>
-                  </span>
-                </header>
-                <div className="task-list">
-                  {categoryTasks.map((task) => (
-                    <TaskRow key={task.id} task={task} value={currentLog[task.id] || {}} isPast={isPastDate} onChange={(field, value) => updateTask(task.id, field, value)} />
-                  ))}
-                  {!categoryTasks.length && <button className="empty-section-row" onClick={() => openTaskSheet(category)}><Plus size={15} /> Add the first task</button>}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="empty-state">
-          <span className="empty-icon"><ListChecks size={28} /></span>
-          <h2>Build a tracker that fits you</h2>
-          <p>Add your first task here, or create and organize sections in Settings.</p>
-          <button className="primary-button" onClick={() => openTaskSheet('Personal')}><Plus size={17} /> Add your first task</button>
-        </div>
-      )}
-
-      <div className="daily-tools-grid">
-        <TimeBlocker date={currentDate} logs={logs} updateLog={(_, field, value) => updateTask(field, 'list', value)} />
-        <TodoList date={currentDate} logs={logs} updateLog={(_, __, newTodos) => updateTask('todos', 'list', newTodos)} />
-      </div>
+      <div className="today-card-layout">{todayCardOrder.map((cardId) => <div key={cardId} className={cardId === 'habits' || cardId === 'study' ? 'today-card-full' : 'today-card-half'}>{todayCards[cardId]}</div>)}</div>
 
       {taskSheetCategory !== null && (
         <div className="modal-backdrop task-sheet-backdrop" role="presentation" onMouseDown={() => setTaskSheetCategory(null)}>

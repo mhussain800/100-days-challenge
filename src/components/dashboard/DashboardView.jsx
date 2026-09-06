@@ -4,10 +4,11 @@ import SalahGraph from './SalahGraph';
 import { getDaysArray, parseDateKey, toDateKey } from '../../utils/helpers';
 import TimeGraph from './TimeGraph';
 import WeeklyGraph from './WeeklyGraph';
+import StudyInsights from '../study/StudyInsights';
 
 const PRAYER_IDS = new Set(['fajar', 'zuhar', 'asar', 'maghrib', 'isha']);
 
-export default function DashboardView({ tasks, logs, startDate, userName, today }) {
+export default function DashboardView({ tasks, logs, startDate, userName, today, studySessions, studySubjects, weeklyStudyGoals, insightsCardOrder }) {
   const days100 = useMemo(() => getDaysArray(startDate, 100), [startDate]);
   const todayLog = logs[today] || {};
 
@@ -32,6 +33,12 @@ export default function DashboardView({ tasks, logs, startDate, userName, today 
   const completionRate = tasks.length ? Math.round((completedToday / tasks.length) * 100) : 0;
   const bestStreak = taskStreaks.reduce((best, item) => Math.max(best, item.streak), 0);
   const prayerTasks = tasks.filter((task) => PRAYER_IDS.has(task.id));
+  const insightCards = {
+    salah: prayerTasks.length > 0 ? <SalahGraph logs={logs} days100={days100} today={today} prayerTasks={prayerTasks} /> : null,
+    study: <StudyInsights sessions={studySessions} subjects={studySubjects} weeklyGoals={weeklyStudyGoals} today={today} />,
+    time: <TimeGraph logs={logs} today={today} />,
+    weekly: <WeeklyGraph logs={logs} today={today} />,
+  };
 
   return (
     <div className="page-stack dashboard-page">
@@ -55,9 +62,7 @@ export default function DashboardView({ tasks, logs, startDate, userName, today 
       </section>
 
       <div className="charts-grid">
-        {prayerTasks.length > 0 && <SalahGraph logs={logs} days100={days100} today={today} prayerTasks={prayerTasks} />}
-        <TimeGraph logs={logs} today={today} />
-        <WeeklyGraph logs={logs} today={today} />
+        {insightsCardOrder.map((cardId) => <div key={cardId} className={`insight-card-slot insight-card-slot-${cardId}`}>{insightCards[cardId]}</div>)}
       </div>
 
       <section>

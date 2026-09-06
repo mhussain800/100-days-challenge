@@ -38,7 +38,7 @@ export const DEFAULT_TASKS = [
   { id: 'skincare', label: 'Skin care routine', category: 'Health', type: 'bool' },
   { id: 'brush', label: 'Dental Hygiene', category: 'Health', type: 'bool_num', placeholder: 'times' },
   // Productivity / Discipline
-  { id: 'study', label: 'Study', category: 'Discipline', type: 'bool_num', placeholder: 'hrs' },
+  { id: 'study', label: 'Study', category: 'Discipline', type: 'bool_num', placeholder: 'hrs', managedBy: 'study_sessions' },
   { id: 'book', label: 'Read a book', category: 'Discipline', type: 'bool_num', placeholder: 'pgs' },
   { id: 'college', label: 'College on Time', category: 'Discipline', type: 'bool_time' },
   { id: 'plan', label: 'Plan the next day', category: 'Discipline', type: 'bool_text' },
