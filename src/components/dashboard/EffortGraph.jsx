@@ -18,7 +18,7 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 export default function EffortGraph({ logs, days100, today }) {
-  const chartData = useMemo(() => days100.map((day, index) => ({
+  const chartData = useMemo(() => days100.slice(0, 10).map((day, index) => ({
     name: `Day ${index + 1}`,
     effort: day <= today ? getEffort(logs[day]) : null,
   })), [days100, logs, today]);
@@ -27,14 +27,14 @@ export default function EffortGraph({ logs, days100, today }) {
     <section className="chart-card effort-chart">
       <header className="chart-header">
         <span className="chart-icon"><Gauge size={18} /></span>
-        <span><strong>Daily effort</strong><small>How much you gave, day by day</small></span>
+        <span><strong>Daily effort</strong><small>Your first 10 days at a glance</small></span>
       </header>
       <div className="chart-area">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart layout="vertical" data={chartData} margin={{ top: 12, right: 12, left: 0, bottom: 2 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" horizontal={false} />
-            <XAxis type="number" dataKey="effort" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} unit="%" />
-            <YAxis type="category" dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={8} width={42} interval={19} />
+          <LineChart data={chartData} margin={{ top: 12, right: 12, left: -12, bottom: 2 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
+            <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} />
+            <YAxis stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={8} width={40} domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} unit="%" />
             <Tooltip content={<ChartTooltip />} />
             <Line type="monotone" dataKey="effort" stroke="var(--accent)" strokeWidth={3} dot={false} activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--accent)' }} connectNulls={false} />
           </LineChart>
