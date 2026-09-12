@@ -1,10 +1,13 @@
 import { useMemo } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Gauge } from 'lucide-react';
+import { parseDateKey, toDateKey } from '../../utils/helpers';
 
 function getEffort(dayLog) {
-  const effort = dayLog?.dailyEffort?.percentage;
-  return Number.isInteger(effort) && effort >= 0 && effort <= 100 ? effort : null;
+  const value = dayLog?.dailyEffort?.percentage ?? dayLog?.dailyEffort;
+  if (value === null || value === undefined || value === '') return null;
+  const effort = Number(value);
+  return Number.isFinite(effort) && effort >= 0 && effort <= 100 ? effort : null;
 }
 
 function ChartTooltip({ active, payload, label }) {
@@ -19,12 +22,18 @@ function ChartTooltip({ active, payload, label }) {
 
 export default function EffortGraph({ logs, days100, today }) {
   const chartData = useMemo(() => {
-    const completedDays = days100.filter((day) => day <= today);
-    const visibleDays = (completedDays.length ? completedDays : days100.slice(0, 10)).slice(-10);
+    const challengeStart = days100[0] || today;
+    const earliestVisibleDate = parseDateKey(today);
+    earliestVisibleDate.setDate(earliestVisibleDate.getDate() - 9);
+    const visibleDays = Array.from({ length: 10 }, (_, index) => {
+      const date = new Date(earliestVisibleDate);
+      date.setDate(date.getDate() + index);
+      return toDateKey(date);
+    }).filter((day) => day >= challengeStart);
 
     return visibleDays.map((day) => ({
-      name: `Day ${days100.indexOf(day) + 1}`,
-      effort: day <= today ? getEffort(logs[day]) : null,
+      name: `Day ${Math.round((parseDateKey(day) - parseDateKey(challengeStart)) / 86400000) + 1}`,
+      effort: getEffort(logs[day]),
     }));
   }, [days100, logs, today]);
 
@@ -41,7 +50,7 @@ export default function EffortGraph({ logs, days100, today }) {
             <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} />
             <YAxis stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={8} width={44} domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tickFormatter={(value) => `${value}%`} />
             <Tooltip content={<ChartTooltip />} />
-            <Line type="monotone" dataKey="effort" stroke="var(--accent)" strokeWidth={3} dot={false} activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--accent)' }} connectNulls={false} />
+            <Line type="monotone" dataKey="effort" stroke="var(--accent)" strokeWidth={3} dot={{ r: 4, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--accent)' }} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--accent)' }} connectNulls={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
