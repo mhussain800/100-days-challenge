@@ -395,6 +395,50 @@ textarea:focus-visible {
 .progress-track { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--surface-soft); }
 .progress-track span { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--success); transition: width 280ms ease; }
 
+/* Daily effort check-in */
+.effort-card { --effort-color:var(--accent); padding:20px; border:1px solid var(--separator); border-radius:var(--radius-card); background:var(--surface); box-shadow:var(--shadow-card); }
+.effort-card[data-effort-level='unset'] { --effort-color:var(--separator-strong); }
+.effort-card[data-effort-level='low'] { --effort-color:var(--danger); }
+.effort-card[data-effort-level='steady'] { --effort-color:var(--warning); }
+.effort-card[data-effort-level='focused'] { --effort-color:var(--accent); }
+.effort-card[data-effort-level='strong'] { --effort-color:var(--success); }
+.effort-card-header { display:grid; grid-template-columns:38px minmax(0,1fr) auto; align-items:center; gap:11px; }
+.effort-icon { width:38px; height:38px; display:grid; place-items:center; border-radius:11px; color:var(--effort-color); background:color-mix(in srgb,var(--effort-color) 14%,transparent); transition:color var(--motion-ui) ease,background-color var(--motion-ui) ease; }
+.effort-card-header > span:nth-child(2) { min-width:0; }
+.effort-card-header strong { display:block; font-family:var(--font-display); font-size:17px; }
+.effort-card-header small { display:block; margin-top:3px; color:var(--text-secondary); font-family:var(--font-data); font-size:11px; }
+.effort-value { min-width:76px; padding-left:12px; text-align:right; }
+.effort-value strong { color:var(--effort-color); font-family:var(--font-data); font-size:24px; letter-spacing:-.04em; transition:color var(--motion-ui) ease; }
+.effort-value small { color:var(--text-tertiary); font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.effort-slider-wrap { margin-top:19px; }
+.effort-slider { width:100%; height:20px; display:block; margin:0; appearance:none; -webkit-appearance:none; border:0; border-radius:999px; outline:0; background:linear-gradient(90deg,var(--effort-color) 0 var(--effort-fill),var(--surface-soft) var(--effort-fill) 100%); cursor:pointer; transition:background var(--motion-ui) ease; }
+.effort-slider::-webkit-slider-runnable-track { height:8px; border-radius:999px; background:transparent; }
+.effort-slider::-webkit-slider-thumb { width:20px; height:20px; margin-top:-6px; appearance:none; -webkit-appearance:none; border:3px solid var(--surface); border-radius:50%; background:var(--effort-color); box-shadow:0 2px 8px color-mix(in srgb,var(--effort-color) 32%,transparent); transition:background-color var(--motion-ui) ease; }
+.effort-slider::-moz-range-track { height:8px; border:0; border-radius:999px; background:var(--surface-soft); }
+.effort-slider::-moz-range-progress { height:8px; border-radius:999px; background:var(--effort-color); }
+.effort-slider::-moz-range-thumb { width:15px; height:15px; border:3px solid var(--surface); border-radius:50%; background:var(--effort-color); box-shadow:0 2px 8px color-mix(in srgb,var(--effort-color) 32%,transparent); }
+.effort-ticks { display:grid; grid-template-columns:repeat(11,minmax(0,1fr)); gap:2px; margin-top:9px; }
+.effort-ticks button { min-width:0; min-height:25px; padding:0; border:0; border-radius:6px; background:transparent; color:var(--text-tertiary); font-family:var(--font-data); font-size:9px; font-weight:700; transition:color var(--motion-press) ease,background-color var(--motion-press) ease; }
+.effort-ticks button:hover { color:var(--text-primary); background:var(--surface-soft); }
+.effort-ticks button[data-active='true'] { color:var(--text-on-strong); background:var(--effort-color); }
+.effort-ticks button:focus-visible,.effort-slider:focus-visible { outline:3px solid var(--accent-soft); outline-offset:2px; }
+[data-theme='ledger'] .effort-icon { border:1px solid var(--separator); border-radius:2px; background:transparent; }
+[data-theme='ledger'] .effort-card-header strong { font-size:21px; font-style:italic; font-weight:500; }
+[data-theme='ledger'] .effort-slider,[data-theme='ledger'] .effort-slider::-webkit-slider-runnable-track,[data-theme='ledger'] .effort-slider::-moz-range-track,[data-theme='ledger'] .effort-slider::-moz-range-progress { border-radius:2px; }
+[data-theme='ledger'] .effort-slider::-webkit-slider-thumb,[data-theme='ledger'] .effort-slider::-moz-range-thumb,[data-theme='ledger'] .effort-ticks button { border-radius:2px; }
+[data-theme='ledger'] .effort-ticks button[data-active='true'] { background:var(--text-primary); color:var(--text-on-strong); }
+@media (max-width:640px) {
+  .effort-card { padding:17px; }
+  .effort-card-header { grid-template-columns:34px minmax(0,1fr) auto; gap:9px; }
+  .effort-icon { width:34px; height:34px; border-radius:10px; }
+  .effort-card-header strong { font-size:16px; }
+  .effort-card-header small { font-size:10px; }
+  .effort-value { min-width:58px; padding-left:8px; }
+  .effort-value strong { font-size:21px; }
+  .effort-ticks { gap:0; margin-top:8px; }
+  .effort-ticks button { font-size:8px; }
+}
+
 .tracker-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; gap: 18px; }
 .task-group,
 .tool-card,
@@ -520,6 +564,7 @@ textarea:focus-visible {
 .chart-tooltip strong { display: block; margin-bottom: 7px; }
 .chart-tooltip span { display: flex; justify-content: space-between; gap: 18px; color: var(--text-secondary); }
 .chart-tooltip b { color: var(--success); }
+.effort-chart .chart-tooltip b { color: var(--accent); }
 .bar-chart-list { display: flex; flex-direction: column; gap: 10px; }
 .bar-chart-row { display: grid; grid-template-columns: 116px minmax(0, 1fr) 42px; align-items: center; gap: 10px; min-width: 0; }
 .bar-label { overflow: hidden; color: var(--text-secondary); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }

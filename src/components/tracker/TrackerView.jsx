@@ -5,6 +5,7 @@ import TodoList from './TodoList';
 import TimeBlocker from './TimeBlocker';
 import CustomTaskForm from '../settings/CustomTaskForm';
 import StudyLogSection from '../study/StudyLogSection';
+import EffortCheckIn from './EffortCheckIn';
 import { parseDateKey, toDateKey } from '../../utils/helpers';
 
 const formatHeadingDate = (date) => parseDateKey(date).toLocaleDateString('en-US', {
@@ -67,6 +68,11 @@ export default function TrackerView({ tasks, sections, logs, today, theme, curre
         <button className="icon-button" onClick={() => shiftDate(1)} aria-label="Next day"><ChevronRight size={20} /></button>
         <div className="progress-track" aria-label={`${completion}% complete`}><span style={{ width: `${completion}%` }} /></div>
       </section>
+
+      <EffortCheckIn
+        effort={currentLog.dailyEffort?.percentage}
+        onChange={(percentage) => updateTask('dailyEffort', 'percentage', percentage)}
+      />
 
       <div className="today-card-layout">{todayCardOrder.map((cardId) => <div key={cardId} className={cardId === 'habits' || cardId === 'study' ? 'today-card-full' : 'today-card-half'}>{todayCards[cardId]}</div>)}</div>
 

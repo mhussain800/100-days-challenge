@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Activity, Check, Flame, Layers3 } from 'lucide-react';
 import SalahGraph from './SalahGraph';
+import EffortGraph from './EffortGraph';
 import { getDaysArray, parseDateKey, toDateKey } from '../../utils/helpers';
 import TimeGraph from './TimeGraph';
 import WeeklyGraph from './WeeklyGraph';
@@ -35,6 +36,7 @@ export default function DashboardView({ tasks, logs, startDate, userName, today,
   const prayerTasks = tasks.filter((task) => PRAYER_IDS.has(task.id));
   const insightCards = {
     salah: prayerTasks.length > 0 ? <SalahGraph logs={logs} days100={days100} today={today} prayerTasks={prayerTasks} /> : null,
+    effort: <EffortGraph logs={logs} days100={days100} today={today} />,
     study: <StudyInsights sessions={studySessions} subjects={studySubjects} weeklyGoals={weeklyStudyGoals} today={today} />,
     time: <TimeGraph logs={logs} today={today} />,
     weekly: <WeeklyGraph logs={logs} today={today} />,
