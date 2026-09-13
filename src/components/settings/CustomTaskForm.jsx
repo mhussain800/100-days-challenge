@@ -70,7 +70,7 @@ export default function CustomTaskForm({ sections, initialCategory = 'Personal',
           value={form.sectionChoice}
           onChange={(event) => updateField('sectionChoice', event.target.value)}
         >
-          {sections.map((section) => <option key={section} value={section} />)}
+          {sections.map((section) => <option key={section} value={section}>{section}</option>)}
           <option value={CUSTOM_SECTION}>＋ Add custom section…</option>
         </select>
         {form.sectionChoice === CUSTOM_SECTION && (

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Gauge } from 'lucide-react';
 import ChartRangeControl from './ChartRangeControl';
-import { formatRangeDate, useChartRange } from './chartRange';
+import { formatRangeDate, formatTooltipDate, useChartRange } from './chartRange';
 
 function getEffort(dayLog) {
   const value = dayLog?.dailyEffort?.percentage ?? dayLog?.dailyEffort;
@@ -15,7 +15,7 @@ function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length || !Number.isFinite(payload[0].value)) return null;
   return (
     <div className="chart-tooltip">
-      <strong>{label}</strong>
+      <strong>{payload[0]?.payload?.tooltipDate || label}</strong>
       <span>Effort <b>{payload[0].value}%</b></span>
     </div>
   );
@@ -37,6 +37,7 @@ export default function EffortGraph({ logs, today }) {
   const chartRange = useChartRange(today);
   const chartData = useMemo(() => chartRange.dates.map((day) => ({
     name: formatRangeDate(day, chartRange.range),
+    tooltipDate: formatTooltipDate(day),
     effort: getEffort(logs[day]),
   })), [chartRange.dates, chartRange.range, logs]);
 

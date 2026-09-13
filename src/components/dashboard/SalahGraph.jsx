@@ -2,13 +2,13 @@ import { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { MoonStar } from 'lucide-react';
 import ChartRangeControl from './ChartRangeControl';
-import { formatRangeDate, useChartRange } from './chartRange';
+import { formatRangeDate, formatTooltipDate, useChartRange } from './chartRange';
 
 function ChartTooltip({ active, payload, label, prayerCount }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="chart-tooltip">
-      <strong>{label}</strong>
+      <strong>{payload[0]?.payload?.tooltipDate || label}</strong>
       <span>Prayers <b>{payload[0].value} / {prayerCount}</b></span>
     </div>
   );
@@ -23,6 +23,7 @@ export default function SalahGraph({ logs, today, prayerTasks }) {
   const chartRange = useChartRange(today);
   const chartData = useMemo(() => chartRange.dates.map((day) => ({
     name: formatRangeDate(day, chartRange.range),
+    tooltipDate: formatTooltipDate(day),
     count: prayerTasks.filter((task) => logs[day]?.[task.id]?.checked).length,
   })), [chartRange.dates, chartRange.range, logs, prayerTasks]);
 
@@ -40,7 +41,7 @@ export default function SalahGraph({ logs, today, prayerTasks }) {
             <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} minTickGap={24} />
             <YAxis stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} domain={[0, prayerTasks.length]} allowDecimals={false} />
             <Tooltip content={<ChartTooltip prayerCount={prayerTasks.length} />} />
-            <Line type="linear" dataKey="count" stroke="var(--success)" strokeWidth={2.5} dot={<SalahDot />} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--success)' }} connectNulls={false} isAnimationActive={false} />
+            <Line type="linear" dataKey="count" stroke="var(--success)" strokeWidth={2.5} dot={<SalahDot />} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--success)' }} connectNulls={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

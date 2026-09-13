@@ -27,6 +27,13 @@ const VALID_COLOR_MODES = new Set(['light', 'dark', 'system']);
 const DEFAULT_THEME = 'ios';
 const DEFAULT_COLOR_MODE = 'system';
 
+const sanitizeQuote = (value) => {
+  const text = typeof value?.text === 'string' ? value.text.trim().slice(0, 500) : '';
+  return text ? { text } : null;
+};
+
+const quoteTime = (quote) => quote.createdAt?.toMillis?.() || Number(quote.createdAt) || 0;
+
 const NAV_ITEMS = [
   { id: 'tracker', label: 'Today', icon: CalendarCheck },
   { id: 'dashboard', label: 'Insights', icon: ChartNoAxesColumnIncreasing },
@@ -45,6 +52,8 @@ export default function App() {
   const [todayCardOrder, setTodayCardOrder] = useState(DEFAULT_TODAY_CARD_ORDER);
   const [insightsCardOrder, setInsightsCardOrder] = useState(DEFAULT_INSIGHTS_CARD_ORDER);
   const [studySessions, setStudySessions] = useState([]);
+  const [quotes, setQuotes] = useState([]);
+  const [activeQuoteId, setActiveQuoteId] = useState(null);
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('challenge_theme');
     return VALID_THEMES.has(savedTheme) ? savedTheme : DEFAULT_THEME;
@@ -130,6 +139,8 @@ export default function App() {
         setTodayCardOrder(DEFAULT_TODAY_CARD_ORDER);
         setInsightsCardOrder(DEFAULT_INSIGHTS_CARD_ORDER);
         setStudySessions([]);
+        setQuotes([]);
+        setActiveQuoteId(null);
         setStartDate(getToday());
         setAuthLoading(false);
         return;
@@ -184,6 +195,7 @@ export default function App() {
         setWeeklyStudyGoals({});
         setTodayCardOrder(DEFAULT_TODAY_CARD_ORDER);
         setInsightsCardOrder(DEFAULT_INSIGHTS_CARD_ORDER);
+        setActiveQuoteId(null);
         localStorage.setItem('challenge_theme', DEFAULT_THEME);
         localStorage.setItem('challenge_color_mode', DEFAULT_COLOR_MODE);
         return;
@@ -198,6 +210,7 @@ export default function App() {
       setWeeklyStudyGoals(normalizeStudyGoals(preferences.weeklyStudyGoals));
       setTodayCardOrder(normalizeCardOrder(preferences.todayCardOrder, DEFAULT_TODAY_CARD_ORDER));
       setInsightsCardOrder(normalizeCardOrder(preferences.insightsCardOrder, DEFAULT_INSIGHTS_CARD_ORDER));
+      setActiveQuoteId(typeof preferences.activeQuoteId === 'string' ? preferences.activeQuoteId : null);
 
       const savedTheme = VALID_THEMES.has(preferences.theme) ? preferences.theme : DEFAULT_THEME;
       const savedColorMode = VALID_COLOR_MODES.has(preferences.colorMode) ? preferences.colorMode : DEFAULT_COLOR_MODE;
@@ -222,6 +235,18 @@ export default function App() {
       }).filter(Boolean).sort((first, second) => first.dateKey.localeCompare(second.dateKey));
       setStudySessions(fetchedSessions);
     }, (error) => { console.error('Study sessions sync error:', error); showSaveStatus('Study sync unavailable'); });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return undefined;
+    return onSnapshot(collection(db, 'users', user.uid, 'learning_quotes'), (snapshot) => {
+      const fetchedQuotes = snapshot.docs.map((quoteDoc) => {
+        const data = quoteDoc.data();
+        const quote = sanitizeQuote(data);
+        return quote ? { id: quoteDoc.id, ...quote, createdAt: data.createdAt, updatedAt: data.updatedAt } : null;
+      }).filter(Boolean).sort((first, second) => quoteTime(second) - quoteTime(first));
+      setQuotes(fetchedQuotes);
+    }, (error) => { console.error('Quote sync error:', error); showSaveStatus('Quote sync unavailable'); });
   }, [user]);
 
   useEffect(() => () => {
@@ -269,6 +294,7 @@ export default function App() {
     nextWeeklyStudyGoals = weeklyStudyGoals,
     nextTodayCardOrder = todayCardOrder,
     nextInsightsCardOrder = insightsCardOrder,
+    nextActiveQuoteId = activeQuoteId,
   } = {}) => {
     const safeTasks = normalizeTasks(nextTasks);
     const safeTheme = VALID_THEMES.has(nextTheme) ? nextTheme : DEFAULT_THEME;
@@ -279,6 +305,7 @@ export default function App() {
     const safeWeeklyStudyGoals = normalizeStudyGoals(nextWeeklyStudyGoals);
     const safeTodayCardOrder = normalizeCardOrder(nextTodayCardOrder, DEFAULT_TODAY_CARD_ORDER);
     const safeInsightsCardOrder = normalizeCardOrder(nextInsightsCardOrder, DEFAULT_INSIGHTS_CARD_ORDER);
+    const safeActiveQuoteId = typeof nextActiveQuoteId === 'string' ? nextActiveQuoteId : null;
 
     setTasks(safeTasks);
     setSections(safeSections);
@@ -289,6 +316,7 @@ export default function App() {
     setWeeklyStudyGoals(safeWeeklyStudyGoals);
     setTodayCardOrder(safeTodayCardOrder);
     setInsightsCardOrder(safeInsightsCardOrder);
+    setActiveQuoteId(safeActiveQuoteId);
     localStorage.setItem('challenge_theme', safeTheme);
     localStorage.setItem('challenge_color_mode', safeColorMode);
     showSaveStatus('Saving…');
@@ -305,6 +333,7 @@ export default function App() {
         weeklyStudyGoals: safeWeeklyStudyGoals,
         todayCardOrder: safeTodayCardOrder,
         insightsCardOrder: safeInsightsCardOrder,
+        activeQuoteId: safeActiveQuoteId,
         updatedAt: Date.now(),
       }, { merge: true });
       showSaveStatus('Saved', 1800);
@@ -344,6 +373,32 @@ export default function App() {
     return savePreferences({ nextStudySubjects: [...studySubjects, makeStudySubject(cleanName, studySubjects.length)] });
   };
   const saveCardOrder = ({ todayCardOrder: nextTodayCardOrder = todayCardOrder, insightsCardOrder: nextInsightsCardOrder = insightsCardOrder }) => savePreferences({ nextTodayCardOrder, nextInsightsCardOrder });
+  const selectQuote = async (quoteId) => {
+    if (!quotes.some((quote) => quote.id === quoteId)) return false;
+    return savePreferences({ nextActiveQuoteId: quoteId });
+  };
+  const saveQuote = async (text) => {
+    const quote = sanitizeQuote({ text });
+    if (!quote) throw new Error('Write a quote first.');
+    const quoteRef = doc(collection(db, 'users', user.uid, 'learning_quotes'));
+    showSaveStatus('Saving…');
+    try {
+      await Promise.all([
+        setDoc(quoteRef, { ...quote, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }),
+        setDoc(doc(db, 'users', user.uid, 'challenge_data', 'preferences'), { activeQuoteId: quoteRef.id, updatedAt: Date.now() }, { merge: true }),
+      ]);
+      setQuotes((current) => (current.some((item) => item.id === quoteRef.id)
+        ? current
+        : [{ id: quoteRef.id, ...quote, createdAt: Date.now() }, ...current]));
+      setActiveQuoteId(quoteRef.id);
+      showSaveStatus('Quote saved', 1800);
+      return true;
+    } catch (error) {
+      console.error('Quote save error:', error);
+      showSaveStatus('Could not save quote');
+      throw error;
+    }
+  };
   const syncStudyHabitForDates = async (nextSessions, dateKeys) => {
     const nextLogs = { ...logs };
     dateKeys.forEach((dateKey) => {
@@ -405,6 +460,7 @@ export default function App() {
   }
 
   const currentDayNumber = Math.max(1, Math.round((parseDateKey(currentDate) - parseDateKey(startDate)) / 86400000) + 1);
+  const activeQuote = quotes.find((quote) => quote.id === activeQuoteId) || null;
 
   return (
     <div className="app-shell" data-theme={theme} data-color-mode={resolvedColorMode}>
@@ -454,10 +510,12 @@ export default function App() {
             onDeleteStudySession={deleteStudySession}
             todayCardOrder={todayCardOrder}
             onAddStudySubject={addStudySubject}
+            activeQuote={activeQuote}
+            onSaveQuote={saveQuote}
           />
         )}
         {view === 'dashboard' && (
-          <DashboardView tasks={tasks} logs={logs} startDate={startDate} userName={userName} today={today} studySessions={studySessions} studySubjects={studySubjects} weeklyStudyGoals={weeklyStudyGoals} insightsCardOrder={insightsCardOrder} />
+          <DashboardView tasks={tasks} logs={logs} startDate={startDate} userName={userName} today={today} studySessions={studySessions} studySubjects={studySubjects} weeklyStudyGoals={weeklyStudyGoals} insightsCardOrder={insightsCardOrder} quotes={quotes} activeQuoteId={activeQuoteId} onSelectQuote={selectQuote} />
         )}
         {view === 'settings' && (
           <SettingsView

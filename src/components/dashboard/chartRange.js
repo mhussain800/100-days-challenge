@@ -49,6 +49,12 @@ export const formatRangeDate = (dateKey, range) => {
   return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
 };
 
+export const formatTooltipDate = (dateKey) => parseDateKey(dateKey).toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+
 export function useChartRange(today) {
   const [range, setRange] = useState('100');
   const [customStart, setCustomStart] = useState(shiftDateKey(today, -99));

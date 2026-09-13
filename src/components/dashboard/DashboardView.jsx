@@ -6,10 +6,11 @@ import { getDaysArray, parseDateKey, toDateKey } from '../../utils/helpers';
 import TimeGraph from './TimeGraph';
 import WeeklyGraph from './WeeklyGraph';
 import StudyInsights from '../study/StudyInsights';
+import QuoteArchive from './QuoteArchive';
 
 const PRAYER_IDS = new Set(['fajar', 'zuhar', 'asar', 'maghrib', 'isha']);
 
-export default function DashboardView({ tasks, logs, startDate, userName, today, studySessions, studySubjects, weeklyStudyGoals, insightsCardOrder }) {
+export default function DashboardView({ tasks, logs, startDate, userName, today, studySessions, studySubjects, weeklyStudyGoals, insightsCardOrder, quotes, activeQuoteId, onSelectQuote }) {
   const days100 = useMemo(() => getDaysArray(startDate, 100), [startDate]);
   const todayLog = logs[today] || {};
 
@@ -31,7 +32,6 @@ export default function DashboardView({ tasks, logs, startDate, userName, today,
 
   const taskStreaks = tasks.map((task) => ({ task, streak: getStreak(task) }));
   const completedToday = tasks.filter((task) => isCompleted(task, todayLog[task.id])).length;
-  const completionRate = tasks.length ? Math.round((completedToday / tasks.length) * 100) : 0;
   const bestStreak = taskStreaks.reduce((best, item) => Math.max(best, item.streak), 0);
   const prayerTasks = tasks.filter((task) => PRAYER_IDS.has(task.id));
   const insightCards = {
@@ -44,16 +44,8 @@ export default function DashboardView({ tasks, logs, startDate, userName, today,
 
   return (
     <div className="page-stack dashboard-page">
-      <section className="dashboard-hero">
-        <div>
-          <span className="eyebrow">Your momentum</span>
-          <h1>{userName}&apos;s Insights</h1>
-          <p>A clear view of the routines you&apos;re building, one day at a time.</p>
-        </div>
-        <div className="hero-progress">
-          <strong>{completionRate}%</strong>
-          <span>complete today</span>
-        </div>
+      <section className="dashboard-hero dashboard-greeting">
+        <h1><span className="dashboard-greeting-prefix">Peace be upon you,</span><span className="dashboard-greeting-name">{userName}</span></h1>
       </section>
 
       <section className="summary-grid" aria-label="Today's summary">
@@ -67,6 +59,8 @@ export default function DashboardView({ tasks, logs, startDate, userName, today,
         {insightsCardOrder.map((cardId) => <div key={cardId} className={`insight-card-slot insight-card-slot-${cardId}`}>{insightCards[cardId]}</div>)}
       </div>
 
+      <QuoteArchive quotes={quotes} activeQuoteId={activeQuoteId} onSelectQuote={onSelectQuote} />
+
       <section>
         <div className="content-section-heading">
           <div><span className="eyebrow">Every habit</span><h2>100-day progress</h2></div>
@@ -77,8 +71,8 @@ export default function DashboardView({ tasks, logs, startDate, userName, today,
           <div className="habit-widget-grid">
             {taskStreaks.map(({ task, streak }) => (
               <article key={task.id} className="habit-widget">
-                <header>
-                  <span className="widget-title"><i className="category-dot" /><span><strong>{task.label}</strong><small>{task.category}{task.custom ? ' · Custom' : ''}</small></span></span>
+                <header className="habit-widget-header">
+                  <h3>{task.label}</h3>
                   <span className="streak"><strong>{streak}</strong><small>day streak</small></span>
                 </header>
                 <div className="heatmap" aria-label={`${task.label} 100-day completion map`}>
