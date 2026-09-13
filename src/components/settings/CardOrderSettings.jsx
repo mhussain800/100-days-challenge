@@ -13,7 +13,7 @@ const INSIGHTS_CARDS = {
   effort: { title: 'Daily effort', description: 'Your day-by-day effort trend' },
   study: { title: 'Study insights', description: 'Study time, goals and consistency' },
   time: { title: 'Where your time goes', description: '30-day time overview' },
-  weekly: { title: 'Weekly activity', description: 'Weekly habit activity chart' },
+  weekly: { title: 'Weekly time', description: '7-day activity chart' },
 };
 
 function OrderList({ title, order, cards, onMove, onReset }) {

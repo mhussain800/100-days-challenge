@@ -99,7 +99,10 @@ export default function StudyLogSection({
           {activeSubjects.map((subject) => (
             <button key={subject.id} style={{ '--study-subject': subject.color }} onClick={() => openNewSession(subject.id)}>
               <span className="study-subject-swatch" />
-              <span><strong>{getSubjectDisplayName(subject)}</strong><small>{subjectTotals[subject.id] ? formatStudyDuration(subjectTotals[subject.id], true) : 'Tap to log'}</small></span>
+              <span className="study-subject-info">
+                <strong>{getSubjectDisplayName(subject)}</strong>
+                <small>{subjectTotals[subject.id] ? formatStudyDuration(subjectTotals[subject.id], true) : 'Tap to log'}</small>
+              </span>
               <Plus size={16} />
             </button>
           ))}
@@ -118,10 +121,9 @@ export default function StudyLogSection({
             const details = [session.source, session.amountValue != null ? `${session.amountValue} ${session.amountUnit}` : '', session.notes ? 'Note added' : ''].filter(Boolean);
             return (
               <article className="study-session-row" key={session.id} style={{ '--study-subject': subject?.color || 'var(--accent)' }}>
-                <span className="study-session-marker" />
                 <div className="study-session-main">
                   <div className="study-session-topline"><strong>{session.topic}</strong><span>{formatStudyDuration(session.durationMinutes)}</span></div>
-                  <p>{subject?.name || 'Archived subject'} · {activity.label} · {session.learningMode === 'revision' ? 'Revision' : 'New topic'}</p>
+                  <p><span className="study-session-subject-tag"><i className="study-session-dot" style={{ backgroundColor: subject?.color || 'var(--accent)' }} />{subject?.name || 'Archived subject'}</span> · {activity.label} · {session.learningMode === 'revision' ? 'Revision' : 'New topic'}</p>
                   <div className="study-session-meta">
                     <span><Brain size={13} /> {confidence?.label || `Confidence ${session.confidence}`}</span>
                     {details.length > 0 && <span>{details.join(' · ')}</span>}
@@ -137,8 +139,13 @@ export default function StudyLogSection({
         </div>
       ) : (
         <div className="study-empty-day">
-          <Clock3 size={20} />
-          <span><strong>No study sessions yet</strong><small>Choose a subject above when you finish studying.</small></span>
+          <span className="study-empty-day-icon">
+            <Clock3 size={18} />
+          </span>
+          <div className="study-empty-day-content">
+            <strong>No study sessions yet</strong>
+            <p>Choose a subject above when you finish studying.</p>
+          </div>
         </div>
       )}
 
