@@ -7,13 +7,6 @@ const shiftDateKey = (dateKey, amount) => {
   return toDateKey(date);
 };
 
-const startOfWeek = (dateKey) => {
-  const date = parseDateKey(dateKey);
-  const day = date.getDay();
-  date.setDate(date.getDate() - (day === 0 ? 6 : day - 1));
-  return toDateKey(date);
-};
-
 const startOfMonth = (dateKey) => {
   const date = parseDateKey(dateKey);
   date.setDate(1);
@@ -27,7 +20,7 @@ const startOfYear = (dateKey) => {
 };
 
 const getSelectedRange = (range, today, customStart, customEnd) => {
-  if (range === 'week') return { start: startOfWeek(today), end: today, label: 'This week' };
+  if (range === '100') return { start: shiftDateKey(today, -99), end: today, label: 'Last 100 days' };
   if (range === 'month') return { start: startOfMonth(today), end: today, label: 'This month' };
   if (range === 'year') return { start: startOfYear(today), end: today, label: 'This year' };
   return {
@@ -53,12 +46,12 @@ export const formatRangeDate = (dateKey, range) => {
   if (range === 'year') return date.toLocaleDateString('en-US', { month: 'short' });
   if (range === 'month') return date.toLocaleDateString('en-US', { day: 'numeric' });
   if (range === 'custom') return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-  return date.toLocaleDateString('en-US', { weekday: 'short' });
+  return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
 };
 
 export function useChartRange(today) {
-  const [range, setRange] = useState('week');
-  const [customStart, setCustomStart] = useState(shiftDateKey(today, -6));
+  const [range, setRange] = useState('100');
+  const [customStart, setCustomStart] = useState(shiftDateKey(today, -99));
   const [customEnd, setCustomEnd] = useState(today);
   const selectedRange = useMemo(() => getSelectedRange(range, today, customStart, customEnd), [customEnd, customStart, range, today]);
   const dates = useMemo(() => datesInRange(selectedRange.start, selectedRange.end), [selectedRange.end, selectedRange.start]);

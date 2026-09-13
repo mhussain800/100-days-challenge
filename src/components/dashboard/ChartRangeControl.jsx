@@ -1,5 +1,5 @@
 const RANGE_OPTIONS = [
-  ['week', 'Week'],
+  ['100', '100 Days'],
   ['month', 'Month'],
   ['year', 'Year'],
   ['custom', 'Custom'],
