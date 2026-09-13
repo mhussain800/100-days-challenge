@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Gauge } from 'lucide-react';
-import { parseDateKey, toDateKey } from '../../utils/helpers';
+import ChartRangeControl from './ChartRangeControl';
+import { formatRangeDate, useChartRange } from './chartRange';
 
 function getEffort(dayLog) {
   const value = dayLog?.dailyEffort?.percentage ?? dayLog?.dailyEffort;
@@ -20,37 +21,52 @@ function ChartTooltip({ active, payload, label }) {
   );
 }
 
-export default function EffortGraph({ logs, days100, today }) {
-  const chartData = useMemo(() => {
-    const challengeStart = days100[0] || today;
-    const earliestVisibleDate = parseDateKey(today);
-    earliestVisibleDate.setDate(earliestVisibleDate.getDate() - 9);
-    const visibleDays = Array.from({ length: 10 }, (_, index) => {
-      const date = new Date(earliestVisibleDate);
-      date.setDate(date.getDate() + index);
-      return toDateKey(date);
-    }).filter((day) => day >= challengeStart);
+function getEffortColor(value) {
+  if (value <= 30) return 'var(--danger)';
+  if (value <= 60) return 'var(--warning)';
+  if (value <= 80) return 'var(--accent)';
+  return 'var(--success)';
+}
 
-    return visibleDays.map((day) => ({
-      name: `Day ${Math.round((parseDateKey(day) - parseDateKey(challengeStart)) / 86400000) + 1}`,
-      effort: getEffort(logs[day]),
-    }));
-  }, [days100, logs, today]);
+function EffortDot({ cx, cy, value }) {
+  if (!Number.isFinite(value)) return null;
+  return <circle cx={cx} cy={cy} r={4.5} fill={getEffortColor(value)} stroke="var(--surface)" strokeWidth={2} />;
+}
+
+export default function EffortGraph({ logs, today }) {
+  const chartRange = useChartRange(today);
+  const chartData = useMemo(() => chartRange.dates.map((day) => ({
+    name: formatRangeDate(day, chartRange.range),
+    effort: getEffort(logs[day]),
+  })), [chartRange.dates, chartRange.range, logs]);
 
   return (
     <section className="chart-card effort-chart">
       <header className="chart-header">
         <span className="chart-icon"><Gauge size={18} /></span>
-        <span><strong>Daily effort</strong><small>Your most recent 10 days at a glance</small></span>
+        <span><strong>Daily effort</strong><small>{chartRange.selectedRange.label}</small></span>
       </header>
+      <ChartRangeControl {...chartRange} today={today} label="Daily effort" />
       <div className="chart-area">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 12, right: 12, left: 2, bottom: 2 }}>
+            <defs>
+              <linearGradient id="effort-level-gradient" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor="var(--danger)" />
+                <stop offset="30%" stopColor="var(--danger)" />
+                <stop offset="31%" stopColor="var(--warning)" />
+                <stop offset="60%" stopColor="var(--warning)" />
+                <stop offset="61%" stopColor="var(--accent)" />
+                <stop offset="80%" stopColor="var(--accent)" />
+                <stop offset="81%" stopColor="var(--success)" />
+                <stop offset="100%" stopColor="var(--success)" />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
             <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} />
             <YAxis stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={8} width={44} domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tickFormatter={(value) => `${value}%`} />
             <Tooltip content={<ChartTooltip />} />
-            <Line type="monotone" dataKey="effort" stroke="var(--accent)" strokeWidth={3} dot={{ r: 4, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--accent)' }} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--accent)' }} connectNulls={false} />
+            <Line type="monotone" dataKey="effort" stroke="url(#effort-level-gradient)" strokeWidth={3} dot={<EffortDot />} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--text-primary)' }} connectNulls={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
