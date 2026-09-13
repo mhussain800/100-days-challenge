@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ListChecks, Plus, X } from 'lucide-react';
 import TaskRow from './TaskRow';
 import TodoList from './TodoList';
@@ -15,7 +15,7 @@ const formatHeadingDate = (date) => parseDateKey(date).toLocaleDateString('en-US
   day: 'numeric',
 });
 
-export default function TrackerView({ tasks, sections, logs, today, theme, currentDate, setCurrentDate, updateTask, onAddTask, studySubjects, studySources, studySessions, onSaveStudySession, onDeleteStudySession, todayCardOrder, onAddStudySubject, activeQuote, onSaveQuote }) {
+export default function TrackerView({ tasks, sections, logs, today, theme, currentDate, setCurrentDate, updateTask, onAddTask, studySubjects, studySources, studySessions, onSaveStudySession, onDeleteStudySession, todayCardOrder, todayHabitCardOrder, onAddStudySubject, activeQuote, onSaveQuote }) {
   const [taskSheetCategory, setTaskSheetCategory] = useState(null);
   const currentLog = logs[currentDate] || {};
   const grouped = tasks.reduce((groups, task) => {
@@ -35,15 +35,17 @@ export default function TrackerView({ tasks, sections, logs, today, theme, curre
   const openTaskSheet = (category) => setTaskSheetCategory(category || sections[0] || 'Personal');
   const habitCard = sections.length ? (
     <div className="tracker-grid">
-      {sections.map((category) => {
+      {todayHabitCardOrder.map((category) => {
         const categoryTasks = grouped[category] || [];
         const categoryComplete = categoryTasks.filter((task) => currentLog[task.id]?.checked).length;
-        return <Fragment key={category}><section className="task-group"><header className="task-group-header"><span><i className="category-dot" /><strong>{category}</strong></span><span className="task-group-actions"><small>{categoryComplete}/{categoryTasks.length}</small><button onClick={() => openTaskSheet(category)} aria-label={`Add a task to ${category}`}><Plus size={15} /></button></span></header><div className="task-list">{categoryTasks.map((task) => <TaskRow key={task.id} task={task} value={currentLog[task.id] || {}} isPast={isPastDate} onChange={(field, value) => updateTask(task.id, field, value)} />)}{!categoryTasks.length && <button className="empty-section-row" onClick={() => openTaskSheet(category)}><Plus size={15} /> Add the first task</button>}</div></section>{category.toLocaleLowerCase() === 'spiritual' && <TodayQuoteCard quote={activeQuote} onSaveQuote={onSaveQuote} />}</Fragment>;
+        return <section className="task-group" key={category}><header className="task-group-header"><span><i className="category-dot" /><strong>{category}</strong></span><span className="task-group-actions"><small>{categoryComplete}/{categoryTasks.length}</small><button onClick={() => openTaskSheet(category)} aria-label={`Add a task to ${category}`}><Plus size={15} /></button></span></header><div className="task-list">{categoryTasks.map((task) => <TaskRow key={task.id} task={task} value={currentLog[task.id] || {}} isPast={isPastDate} onChange={(field, value) => updateTask(task.id, field, value)} />)}{!categoryTasks.length && <button className="empty-section-row" onClick={() => openTaskSheet(category)}><Plus size={15} /> Add the first task</button>}</div></section>;
       })}
     </div>
   ) : <div className="empty-state"><span className="empty-icon"><ListChecks size={28} /></span><h2>Build a tracker that fits you</h2><p>Add your first task here, or create and organize sections in Settings.</p><button className="primary-button" onClick={() => openTaskSheet('Personal')}><Plus size={17} /> Add your first task</button></div>;
   const todayCards = {
+    effort: <EffortCheckIn effort={currentLog.dailyEffort?.percentage} onChange={(percentage) => updateTask('dailyEffort', 'percentage', percentage)} />,
     habits: habitCard,
+    quote: <TodayQuoteCard quote={activeQuote} onSaveQuote={onSaveQuote} />,
     study: <StudyLogSection dateKey={currentDate} theme={theme} subjects={studySubjects} sources={studySources} sessions={studySessions.filter((session) => session.dateKey === currentDate)} onSaveSession={onSaveStudySession} onDeleteSession={onDeleteStudySession} onAddSubject={onAddStudySubject} />,
     time: <TimeBlocker date={currentDate} logs={logs} updateLog={(_, field, value) => updateTask(field, 'list', value)} />,
     todos: <TodoList date={currentDate} logs={logs} updateLog={(_, __, newTodos) => updateTask('todos', 'list', newTodos)} />,
@@ -70,12 +72,7 @@ export default function TrackerView({ tasks, sections, logs, today, theme, curre
         <div className="progress-track" aria-label={`${completion}% complete`}><span style={{ width: `${completion}%` }} /></div>
       </section>
 
-      <EffortCheckIn
-        effort={currentLog.dailyEffort?.percentage}
-        onChange={(percentage) => updateTask('dailyEffort', 'percentage', percentage)}
-      />
-
-      <div className="today-card-layout">{todayCardOrder.map((cardId) => <div key={cardId} className={cardId === 'habits' || cardId === 'study' ? 'today-card-full' : 'today-card-half'}>{todayCards[cardId]}</div>)}</div>
+      <div className="today-card-layout">{todayCardOrder.map((cardId) => <div key={cardId} className={cardId === 'effort' || cardId === 'habits' || cardId === 'quote' || cardId === 'study' ? 'today-card-full' : 'today-card-half'}>{todayCards[cardId]}</div>)}</div>
 
       {taskSheetCategory !== null && (
         <div className="modal-backdrop task-sheet-backdrop" role="presentation" onMouseDown={() => setTaskSheetCategory(null)}>

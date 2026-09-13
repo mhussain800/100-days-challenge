@@ -6,6 +6,7 @@ import { getDaysArray, parseDateKey, toDateKey } from '../../utils/helpers';
 import TimeGraph from './TimeGraph';
 import WeeklyGraph from './WeeklyGraph';
 import StudyInsights from '../study/StudyInsights';
+import StudyGoalProgress from '../study/StudyGoalProgress';
 import QuoteArchive from './QuoteArchive';
 
 const PRAYER_IDS = new Set(['fajar', 'zuhar', 'asar', 'maghrib', 'isha']);
@@ -35,31 +36,33 @@ export default function DashboardView({ tasks, logs, startDate, userName, today,
   const bestStreak = taskStreaks.reduce((best, item) => Math.max(best, item.streak), 0);
   const prayerTasks = tasks.filter((task) => PRAYER_IDS.has(task.id));
   const insightCards = {
-    salah: prayerTasks.length > 0 ? <SalahGraph logs={logs} days100={days100} today={today} prayerTasks={prayerTasks} /> : null,
-    effort: <EffortGraph logs={logs} days100={days100} today={today} />,
-    study: <StudyInsights sessions={studySessions} subjects={studySubjects} weeklyGoals={weeklyStudyGoals} today={today} />,
-    time: <TimeGraph logs={logs} today={today} />,
-    weekly: <WeeklyGraph logs={logs} today={today} />,
-  };
-
-  return (
-    <div className="page-stack dashboard-page">
+    hero: (
       <section className="dashboard-hero dashboard-greeting">
         <h1><span className="dashboard-greeting-prefix">Peace be upon you,</span><span className="dashboard-greeting-name">{userName}</span></h1>
       </section>
-
+    ),
+    summary: (
       <section className="summary-grid" aria-label="Today's summary">
         <div className="summary-card"><span className="summary-icon"><Check size={18} /></span><span><strong>{completedToday}</strong><small>Done today</small></span></div>
         <div className="summary-card"><span className="summary-icon"><Layers3 size={18} /></span><span><strong>{tasks.length}</strong><small>Active tasks</small></span></div>
         <div className="summary-card"><span className="summary-icon"><Flame size={18} /></span><span><strong>{bestStreak}</strong><small>Best streak</small></span></div>
         <div className="summary-card"><span className="summary-icon"><Activity size={18} /></span><span><strong>{Object.keys(logs).length}</strong><small>Days logged</small></span></div>
       </section>
+    ),
+    salah: prayerTasks.length > 0 ? <SalahGraph logs={logs} days100={days100} today={today} prayerTasks={prayerTasks} /> : null,
+    effort: <EffortGraph logs={logs} days100={days100} today={today} />,
+    study: <StudyInsights sessions={studySessions} subjects={studySubjects} weeklyGoals={weeklyStudyGoals} today={today} />,
+    studyGoals: <StudyGoalProgress sessions={studySessions} subjects={studySubjects} weeklyGoals={weeklyStudyGoals} today={today} />,
+    time: <TimeGraph logs={logs} today={today} />,
+    weekly: <WeeklyGraph logs={logs} today={today} />,
+    quotes: <QuoteArchive quotes={quotes} activeQuoteId={activeQuoteId} onSelectQuote={onSelectQuote} />,
+  };
 
+  return (
+    <div className="page-stack dashboard-page">
       <div className="charts-grid">
         {insightsCardOrder.map((cardId) => <div key={cardId} className={`insight-card-slot insight-card-slot-${cardId}`}>{insightCards[cardId]}</div>)}
       </div>
-
-      <QuoteArchive quotes={quotes} activeQuoteId={activeQuoteId} onSelectQuote={onSelectQuote} />
 
       <section>
         <div className="content-section-heading">

@@ -46,6 +46,7 @@ export default function SettingsView({
   weeklyStudyGoals,
   onSaveStudySettings,
   todayCardOrder,
+  todayHabitCardOrder,
   insightsCardOrder,
   onSaveCardOrder,
 }) {
@@ -128,7 +129,7 @@ export default function SettingsView({
       </section>
 
       <StudySettings subjects={studySubjects} sources={studySources} weeklyGoals={weeklyStudyGoals} onSave={onSaveStudySettings} />
-      <CardOrderSettings todayCardOrder={todayCardOrder} insightsCardOrder={insightsCardOrder} onChange={onSaveCardOrder} />
+      <CardOrderSettings todayCardOrder={todayCardOrder} todayHabitCardOrder={todayHabitCardOrder} insightsCardOrder={insightsCardOrder} sections={sections} tasks={tasks} onChange={onSaveCardOrder} />
 
       <section className="settings-section" id="custom-task-form">
         <div className="section-title-row">

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   CalendarCheck,
   ChartNoAxesColumnIncreasing,
@@ -8,7 +8,7 @@ import {
 
 import { DEFAULT_SECTIONS, DEFAULT_TASKS, normalizeSections, normalizeTasks } from './data/tasks';
 import { DEFAULT_STUDY_SOURCES, DEFAULT_STUDY_SUBJECTS, makeStudySubject, normalizeStudyGoals, normalizeStudySources, normalizeStudySubjects, sanitizeStudySession } from './data/study';
-import { DEFAULT_INSIGHTS_CARD_ORDER, DEFAULT_TODAY_CARD_ORDER, normalizeCardOrder } from './data/layout';
+import { DEFAULT_INSIGHTS_CARD_ORDER, DEFAULT_TODAY_CARD_ORDER, getDefaultTodayHabitCardOrder, normalizeCardOrder, normalizeTodayHabitCardOrder } from './data/layout';
 import { getToday, parseDateKey } from './utils/helpers';
 
 import Login from './components/auth/Login';
@@ -50,6 +50,7 @@ export default function App() {
   const [studySources, setStudySources] = useState(DEFAULT_STUDY_SOURCES);
   const [weeklyStudyGoals, setWeeklyStudyGoals] = useState({});
   const [todayCardOrder, setTodayCardOrder] = useState(DEFAULT_TODAY_CARD_ORDER);
+  const [todayHabitCardOrder, setTodayHabitCardOrder] = useState(() => getDefaultTodayHabitCardOrder(DEFAULT_SECTIONS));
   const [insightsCardOrder, setInsightsCardOrder] = useState(DEFAULT_INSIGHTS_CARD_ORDER);
   const [studySessions, setStudySessions] = useState([]);
   const [quotes, setQuotes] = useState([]);
@@ -72,7 +73,21 @@ export default function App() {
 
   const logSaveTimeoutRef = useRef(null);
   const statusTimeoutRef = useRef(null);
+  const viewScrollPositionsRef = useRef({ tracker: 0, dashboard: 0, settings: 0 });
   const resolvedColorMode = colorMode === 'system' ? (systemDark ? 'dark' : 'light') : colorMode;
+
+  const changeView = (nextView) => {
+    if (nextView === view) return;
+    viewScrollPositionsRef.current[view] = window.scrollY;
+    setView(nextView);
+  };
+
+  useLayoutEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo(0, viewScrollPositionsRef.current[view] || 0);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [view]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -137,6 +152,7 @@ export default function App() {
         setStudySources(DEFAULT_STUDY_SOURCES);
         setWeeklyStudyGoals({});
         setTodayCardOrder(DEFAULT_TODAY_CARD_ORDER);
+        setTodayHabitCardOrder(getDefaultTodayHabitCardOrder(DEFAULT_SECTIONS));
         setInsightsCardOrder(DEFAULT_INSIGHTS_CARD_ORDER);
         setStudySessions([]);
         setQuotes([]);
@@ -194,6 +210,7 @@ export default function App() {
         setStudySources(DEFAULT_STUDY_SOURCES);
         setWeeklyStudyGoals({});
         setTodayCardOrder(DEFAULT_TODAY_CARD_ORDER);
+        setTodayHabitCardOrder(getDefaultTodayHabitCardOrder(DEFAULT_SECTIONS));
         setInsightsCardOrder(DEFAULT_INSIGHTS_CARD_ORDER);
         setActiveQuoteId(null);
         localStorage.setItem('challenge_theme', DEFAULT_THEME);
@@ -209,6 +226,7 @@ export default function App() {
       setStudySources(normalizeStudySources(preferences.studySources));
       setWeeklyStudyGoals(normalizeStudyGoals(preferences.weeklyStudyGoals));
       setTodayCardOrder(normalizeCardOrder(preferences.todayCardOrder, DEFAULT_TODAY_CARD_ORDER));
+      setTodayHabitCardOrder(normalizeTodayHabitCardOrder(preferences.todayHabitCardOrder, normalizeSections(preferences.sections, savedTasks)));
       setInsightsCardOrder(normalizeCardOrder(preferences.insightsCardOrder, DEFAULT_INSIGHTS_CARD_ORDER));
       setActiveQuoteId(typeof preferences.activeQuoteId === 'string' ? preferences.activeQuoteId : null);
 
@@ -293,6 +311,7 @@ export default function App() {
     nextStudySources = studySources,
     nextWeeklyStudyGoals = weeklyStudyGoals,
     nextTodayCardOrder = todayCardOrder,
+    nextTodayHabitCardOrder = todayHabitCardOrder,
     nextInsightsCardOrder = insightsCardOrder,
     nextActiveQuoteId = activeQuoteId,
   } = {}) => {
@@ -304,6 +323,7 @@ export default function App() {
     const safeStudySources = normalizeStudySources(nextStudySources);
     const safeWeeklyStudyGoals = normalizeStudyGoals(nextWeeklyStudyGoals);
     const safeTodayCardOrder = normalizeCardOrder(nextTodayCardOrder, DEFAULT_TODAY_CARD_ORDER);
+    const safeTodayHabitCardOrder = normalizeTodayHabitCardOrder(nextTodayHabitCardOrder, safeSections);
     const safeInsightsCardOrder = normalizeCardOrder(nextInsightsCardOrder, DEFAULT_INSIGHTS_CARD_ORDER);
     const safeActiveQuoteId = typeof nextActiveQuoteId === 'string' ? nextActiveQuoteId : null;
 
@@ -315,6 +335,7 @@ export default function App() {
     setStudySources(safeStudySources);
     setWeeklyStudyGoals(safeWeeklyStudyGoals);
     setTodayCardOrder(safeTodayCardOrder);
+    setTodayHabitCardOrder(safeTodayHabitCardOrder);
     setInsightsCardOrder(safeInsightsCardOrder);
     setActiveQuoteId(safeActiveQuoteId);
     localStorage.setItem('challenge_theme', safeTheme);
@@ -332,6 +353,7 @@ export default function App() {
         studySources: safeStudySources,
         weeklyStudyGoals: safeWeeklyStudyGoals,
         todayCardOrder: safeTodayCardOrder,
+        todayHabitCardOrder: safeTodayHabitCardOrder,
         insightsCardOrder: safeInsightsCardOrder,
         activeQuoteId: safeActiveQuoteId,
         updatedAt: Date.now(),
@@ -372,7 +394,12 @@ export default function App() {
     if (studySubjects.some((subject) => subject.name.toLocaleLowerCase() === cleanName.toLocaleLowerCase())) throw new Error('That subject already exists.');
     return savePreferences({ nextStudySubjects: [...studySubjects, makeStudySubject(cleanName, studySubjects.length)] });
   };
-  const saveCardOrder = ({ todayCardOrder: nextTodayCardOrder = todayCardOrder, insightsCardOrder: nextInsightsCardOrder = insightsCardOrder }) => savePreferences({ nextTodayCardOrder, nextInsightsCardOrder });
+  const saveCardOrder = ({
+    todayCardOrder: nextTodayCardOrder = todayCardOrder,
+    todayHabitCardOrder: nextTodayHabitCardOrder = todayHabitCardOrder,
+    insightsCardOrder: nextInsightsCardOrder = insightsCardOrder,
+    sections: nextSections = sections,
+  }) => savePreferences({ nextTodayCardOrder, nextTodayHabitCardOrder, nextInsightsCardOrder, nextSections });
   const selectQuote = async (quoteId) => {
     if (!quotes.some((quote) => quote.id === quoteId)) return false;
     return savePreferences({ nextActiveQuoteId: quoteId });
@@ -465,7 +492,7 @@ export default function App() {
   return (
     <div className="app-shell" data-theme={theme} data-color-mode={resolvedColorMode}>
       <header className="app-header">
-        <button className="brand" onClick={() => setView('tracker')} aria-label="Go to today">
+        <button className="brand" onClick={() => changeView('tracker')} aria-label="Go to today">
           <span className="brand-icon"><img src="/icon-192.png" alt="" /></span>
           <span>
             <strong><span className="brand-title">100 Days</span><span className="brand-day">Day {currentDayNumber}/100</span></strong>
@@ -475,7 +502,7 @@ export default function App() {
 
         <nav className="desktop-nav" aria-label="Main navigation">
           {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-            <button key={id} className="nav-item" data-active={view === id} onClick={() => setView(id)}>
+            <button key={id} className="nav-item" data-active={view === id} onClick={() => changeView(id)}>
               <Icon size={16} />
               {label}
             </button>
@@ -509,6 +536,7 @@ export default function App() {
             onSaveStudySession={saveStudySession}
             onDeleteStudySession={deleteStudySession}
             todayCardOrder={todayCardOrder}
+            todayHabitCardOrder={todayHabitCardOrder}
             onAddStudySubject={addStudySubject}
             activeQuote={activeQuote}
             onSaveQuote={saveQuote}
@@ -536,7 +564,9 @@ export default function App() {
             weeklyStudyGoals={weeklyStudyGoals}
             onSaveStudySettings={saveStudySettings}
             todayCardOrder={todayCardOrder}
+            todayHabitCardOrder={todayHabitCardOrder}
             insightsCardOrder={insightsCardOrder}
+            sections={sections}
             onSaveCardOrder={saveCardOrder}
           />
         )}
@@ -544,7 +574,7 @@ export default function App() {
 
       <nav className="mobile-nav" aria-label="Main navigation">
         {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-          <button key={id} className="mobile-nav-item" data-active={view === id} onClick={() => setView(id)}>
+          <button key={id} className="mobile-nav-item" data-active={view === id} onClick={() => changeView(id)}>
             <Icon size={21} />
             <span>{label}</span>
           </button>
