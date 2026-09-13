@@ -40,7 +40,7 @@ export default function SalahGraph({ logs, today, prayerTasks }) {
             <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} minTickGap={24} />
             <YAxis stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} domain={[0, prayerTasks.length]} allowDecimals={false} />
             <Tooltip content={<ChartTooltip prayerCount={prayerTasks.length} />} />
-            <Line type="linear" dataKey="count" stroke="var(--success)" strokeWidth={2.5} dot={<SalahDot />} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--success)' }} connectNulls={false} />
+            <Line type="linear" dataKey="count" stroke="var(--success)" strokeWidth={2.5} dot={<SalahDot />} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--success)' }} connectNulls={false} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

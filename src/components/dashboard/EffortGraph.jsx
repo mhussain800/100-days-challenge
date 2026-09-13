@@ -63,10 +63,10 @@ export default function EffortGraph({ logs, today }) {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
-            <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} />
+            <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} minTickGap={24} />
             <YAxis stroke="var(--text-tertiary)" fontSize={10} tickLine={false} axisLine={false} tickMargin={8} width={44} domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tickFormatter={(value) => `${value}%`} />
             <Tooltip content={<ChartTooltip />} />
-            <Line type="monotone" dataKey="effort" stroke="url(#effort-level-gradient)" strokeWidth={3} dot={<EffortDot />} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--text-primary)' }} connectNulls={false} />
+            <Line type="monotone" dataKey="effort" stroke="url(#effort-level-gradient)" strokeWidth={3} dot={<EffortDot />} activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--text-primary)' }} connectNulls={false} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
