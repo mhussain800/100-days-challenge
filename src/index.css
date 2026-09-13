@@ -570,6 +570,10 @@ textarea:focus-visible {
 [data-theme='ledger'] .chart-range-control { border-radius:2px; }
 [data-theme='ledger'] .chart-range-control button { border-radius:1px; }
 [data-theme='ledger'] .chart-custom-range label { border-radius:2px; }
+.salah-chart .recharts-line-curve { stroke-linecap:round; stroke-linejoin:round; }
+.salah-data-point { fill:var(--success); stroke:var(--surface); stroke-width:2; }
+[data-theme='ledger'] .salah-chart .recharts-line-curve { stroke-width:2px; }
+[data-theme='ledger'] .salah-data-point { stroke:var(--success); stroke-width:1px; }
 .chart-tooltip { min-width: 128px; padding: 10px 11px; border: 1px solid var(--separator); border-radius: 10px; background: var(--surface-raised); box-shadow: var(--shadow-card); font-family: var(--font-data); font-size: 11px; }
 .chart-tooltip strong { display: block; margin-bottom: 7px; }
 .chart-tooltip span { display: flex; justify-content: space-between; gap: 18px; color: var(--text-secondary); }
